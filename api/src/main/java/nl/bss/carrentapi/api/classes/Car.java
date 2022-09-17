@@ -2,12 +2,12 @@ package nl.bss.carrentapi.api.classes;
 
 public class Car {
     private String brand;
-    private String type;
+    private String model;
     private String color;
-    private enum category { ICE, BEV, FCEV} //ICE: Interne verbrandingsmotor    BEV: Battery Electric Vehicle   FCEV: Fuel Cell EV
     private int kilometersCurrent;
     private int pricePerKilometer;
 
+    private Category carCategory;
     private Owner owner;
     private Tenant tenant;
 
@@ -16,7 +16,7 @@ public class Car {
     }
 
     public String getType() {
-        return type;
+        return model;
     }
 
     public String getColor() {
@@ -59,18 +59,18 @@ public class Car {
         this.tenant = tenant;
     }
 
-    public Car(String brand, String type, String color, int kilometersCurrent, int pricePerKilometer, Owner owner) {
+    public Car(String brand, String model, String color, int kilometersCurrent, int pricePerKilometer, Owner owner) {
         this.brand = brand;
-        this.type = type;
+        this.model = model;
         this.color = color;
         this.kilometersCurrent = kilometersCurrent;
         this.pricePerKilometer = pricePerKilometer;
         this.owner = owner;
     }
 
-    public Car(String brand, String type, String color, int kilometersCurrent, int pricePerKilometer) {
+    public Car(String brand, String model, String color, int kilometersCurrent, int pricePerKilometer) {
         this.brand = brand;
-        this.type = type;
+        this.model = model;
         this.color = color;
         this.kilometersCurrent = kilometersCurrent;
         this.pricePerKilometer = pricePerKilometer;
