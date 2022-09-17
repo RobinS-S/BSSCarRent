@@ -59,20 +59,22 @@ public class Car {
         this.tenant = tenant;
     }
 
-    public Car(String brand, String model, String color, int kilometersCurrent, int pricePerKilometer, Owner owner) {
+    public Car(String brand, String model, String color, int kilometersCurrent, int pricePerKilometer, Owner owner, Category carCategory) {
         this.brand = brand;
         this.model = model;
         this.color = color;
         this.kilometersCurrent = kilometersCurrent;
         this.pricePerKilometer = pricePerKilometer;
         this.owner = owner;
+        this.carCategory = carCategory;
     }
 
-    public Car(String brand, String model, String color, int kilometersCurrent, int pricePerKilometer) {
+    public Car(String brand, String model, String color, int kilometersCurrent, int pricePerKilometer, Category carCategory) {
         this.brand = brand;
         this.model = model;
         this.color = color;
         this.kilometersCurrent = kilometersCurrent;
         this.pricePerKilometer = pricePerKilometer;
+        this.carCategory = carCategory;
     }
 }
