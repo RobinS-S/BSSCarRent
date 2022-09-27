@@ -4,4 +4,10 @@
 
 Car rental application for renters and rentals.
 
-Authors: Julian Bos, Robin Seinen, Niels Saarloos
+Auteurs				Julian Bos, Robin Seinen, Niels Saarloos
+Opleiding			Informatica Ad/BSc
+Onderwijsinstelling	Avans Hogeschool
+Opdracht			Proftaak
+Module				Java/mobile development
+Docent				Paul de Mast
+
