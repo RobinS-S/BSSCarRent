@@ -43,6 +43,9 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "tenant")
     private Set<Rental> rentals;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "carOwner")
+    private Set<Rental> currentContracts;
+
     @Column
     private long score;
 
@@ -132,29 +135,23 @@ public class User {
         this.rentals = rentals;
     }
 
-    public Long getScore() {
+    public Set<Rental> getCurrentContracts() { return currentContracts; }
+
+    public void setCurrentContracts(Set<Rental> currentContracts) { this.currentContracts = currentContracts; }
+
+    public long getScore() {
         return score;
     }
 
-    public void setScore(Long score) {
-        this.score = score;
-    }
+    public void setScore(long score) { this.score = score; }
 
-    public String getPhoneInternationalCode() {
-        return phoneInternationalCode;
-    }
+    public String getPhoneInternationalCode() { return phoneInternationalCode; }
 
-    public void setPhoneInternationalCode(String phoneInternationalCode) {
-        this.phoneInternationalCode = phoneInternationalCode;
-    }
+    public void setPhoneInternationalCode(String phoneInternationalCode) { this.phoneInternationalCode = phoneInternationalCode; }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+    public String getPhoneNumber() { return phoneNumber; }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     @Override
     public String toString() {

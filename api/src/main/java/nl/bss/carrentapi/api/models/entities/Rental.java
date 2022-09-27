@@ -21,7 +21,7 @@ public class Rental {
     private LocalDateTime deliveredAt;
 
     @Column
-    private long mileageProduced;
+    private long mileageTotal;
 
     @Column
     private long drivingStyleScore;
@@ -34,16 +34,21 @@ public class Rental {
     private User tenant;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User carOwner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id")
     private Car car;
 
     protected Rental() {}
 
-    public Rental(LocalDateTime reservedFrom, LocalDateTime reservedUntil, long kmPackage, User tenant, Car car) {
+    public Rental(LocalDateTime reservedFrom, LocalDateTime reservedUntil, long kmPackage, User tenant, User carOwner, Car car) {
         this.reservedFrom = reservedFrom;
         this.reservedUntil = reservedUntil;
         this.kmPackage = kmPackage;
         this.tenant = tenant;
+        this.carOwner = carOwner;
         this.car = car;
     }
 
@@ -71,12 +76,12 @@ public class Rental {
         this.deliveredAt = deliveredAt;
     }
 
-    public long getMileageProduced() {
-        return mileageProduced;
+    public long getMileageTotal() {
+        return mileageTotal;
     }
 
-    public void setMileageProduced(long mileageProduced) {
-        this.mileageProduced = mileageProduced;
+    public void setMileageTotal(long mileageTotal) {
+        this.mileageTotal = mileageTotal;
     }
 
     public long getDrivingStyleScore() {
