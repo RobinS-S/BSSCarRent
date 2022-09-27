@@ -29,9 +29,6 @@ public class Rental {
     @Column
     private long kmPackage;
 
-    @Column
-    private boolean isActive;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
     private User tenant;
@@ -42,15 +39,12 @@ public class Rental {
 
     protected Rental() {}
 
-    public Rental(LocalDateTime reservedFrom, LocalDateTime reservedUntil, LocalDateTime deliveredAt, long mileageProduced, long drivingStyleScore, long kmPackage, boolean isActive, User tenant) {
+    public Rental(LocalDateTime reservedFrom, LocalDateTime reservedUntil, long kmPackage, User tenant, Car car) {
         this.reservedFrom = reservedFrom;
         this.reservedUntil = reservedUntil;
-        this.deliveredAt = deliveredAt;
-        this.mileageProduced = mileageProduced;
-        this.drivingStyleScore = drivingStyleScore;
         this.kmPackage = kmPackage;
-        this.isActive = isActive;
         this.tenant = tenant;
+        this.car = car;
     }
 
     public LocalDateTime getReservedFrom() {
@@ -101,11 +95,27 @@ public class Rental {
         this.kmPackage = kmPackage;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public long getId() {
+        return id;
     }
 
-    public void setActive(boolean active) {
-        isActive = active;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public User getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(User tenant) {
+        this.tenant = tenant;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
     }
 }

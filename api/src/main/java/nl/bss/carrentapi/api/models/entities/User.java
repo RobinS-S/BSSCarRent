@@ -28,6 +28,12 @@ public class User {
     @Column(length = 128)
     private String lastName;
 
+    @Column(length = 8)
+    private String phoneInternationalCode;
+
+    @Column(length = 16)
+    private String phoneNumber;
+
     @Column
     private LocalDate birthDate;
 
@@ -38,17 +44,19 @@ public class User {
     private Set<Rental> rentals;
 
     @Column
-    private Long score;
+    private long score;
 
     protected User() {
     }
 
-    public User(String email, String password, String firstName, String infix, String lastName, LocalDate birthDate) {
+    public User(String email, String password, String firstName, String infix, String lastName, String phoneInternationalCode, String phoneNumber, LocalDate birthDate) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.infix = infix;
         this.lastName = lastName;
+        this.phoneInternationalCode = phoneInternationalCode;
+        this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
         this.ownedCars = new HashSet<>();
         this.rentals = new HashSet<>();
@@ -132,9 +140,20 @@ public class User {
         this.score = score;
     }
 
-    public void addCar(Car car) {
-        this.ownedCars.add(car);
-        car.setOwner(this);
+    public String getPhoneInternationalCode() {
+        return phoneInternationalCode;
+    }
+
+    public void setPhoneInternationalCode(String phoneInternationalCode) {
+        this.phoneInternationalCode = phoneInternationalCode;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override

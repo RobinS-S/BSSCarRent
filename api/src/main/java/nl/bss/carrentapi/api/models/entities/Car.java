@@ -3,6 +3,7 @@ package nl.bss.carrentapi.api.models.entities;
 import nl.bss.carrentapi.api.models.interfaces.CostCalculable;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "cars", schema = "PUBLIC")
@@ -29,6 +30,18 @@ public abstract class Car implements CostCalculable {
     @Column
     private Double pricePerKilometer;
 
+    @Column
+    private Double initialCost;
+
+    @Column(length = 64)
+    private String licensePlate;
+
+    @Column
+    private LocalDate constructed;
+
+    @Column
+    private LocalDate apkUntil;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -36,13 +49,33 @@ public abstract class Car implements CostCalculable {
     protected Car() {
     }
 
-    public Car(String brand, String model, String color, int kilometersCurrent, Double pricePerKilometer, User owner) {
+    public Car(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
         this.brand = brand;
         this.model = model;
         this.color = color;
+        this.licensePlate = licensePlate;
         this.kilometersCurrent = kilometersCurrent;
         this.pricePerKilometer = pricePerKilometer;
+        this.initialCost = initialCost;
+        this.constructed = constructed;
+        this.apkUntil = apkUntil;
         this.owner = owner;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public String getBrand() {
@@ -76,6 +109,22 @@ public abstract class Car implements CostCalculable {
     public void setPricePerKilometer(Double pricePerKilometer) {
         this.pricePerKilometer = pricePerKilometer;
     }
+
+    public Double getInitialCost() { return initialCost; }
+
+    public void setInitialCost(Double initialCost) { this.initialCost = initialCost; }
+
+    public String getLicensePlate() { return licensePlate; }
+
+    public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
+
+    public LocalDate getConstructed() { return constructed; }
+
+    public void setConstructed(LocalDate constructed) { this.constructed = constructed; }
+
+    public LocalDate getApkUntil() { return apkUntil; }
+
+    public void setApkUntil(LocalDate apkUntil) { this.apkUntil = apkUntil; }
 
     public User getOwner() {
         return owner;
