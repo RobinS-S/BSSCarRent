@@ -1,5 +1,6 @@
 package nl.bss.carrentapi.api.models.entities;
 
+import nl.bss.carrentapi.api.enums.CombustionFuelType;
 import nl.bss.carrentapi.api.models.interfaces.CostCalculable;
 
 import javax.persistence.*;
@@ -46,6 +47,9 @@ public abstract class Car implements CostCalculable {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @Column
+    private CombustionFuelType fuelType;
+
     protected Car() {
     }
 
@@ -66,10 +70,6 @@ public abstract class Car implements CostCalculable {
         return id;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
     public String getModel() {
         return model;
     }
@@ -80,6 +80,10 @@ public abstract class Car implements CostCalculable {
 
     public String getBrand() {
         return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 
     public String getType() {
@@ -110,21 +114,45 @@ public abstract class Car implements CostCalculable {
         this.pricePerKilometer = pricePerKilometer;
     }
 
-    public Double getInitialCost() { return initialCost; }
+    public Double getInitialCost() {
+        return initialCost;
+    }
 
-    public void setInitialCost(Double initialCost) { this.initialCost = initialCost; }
+    public void setInitialCost(Double initialCost) {
+        this.initialCost = initialCost;
+    }
 
-    public String getLicensePlate() { return licensePlate; }
+    public String getLicensePlate() {
+        return licensePlate;
+    }
 
-    public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
 
-    public LocalDate getConstructed() { return constructed; }
+    public LocalDate getConstructed() {
+        return constructed;
+    }
 
-    public void setConstructed(LocalDate constructed) { this.constructed = constructed; }
+    public void setConstructed(LocalDate constructed) {
+        this.constructed = constructed;
+    }
 
-    public LocalDate getApkUntil() { return apkUntil; }
+    public LocalDate getApkUntil() {
+        return apkUntil;
+    }
 
-    public void setApkUntil(LocalDate apkUntil) { this.apkUntil = apkUntil; }
+    public void setApkUntil(LocalDate apkUntil) {
+        this.apkUntil = apkUntil;
+    }
+
+    public CombustionFuelType getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(CombustionFuelType fuelType) {
+        this.fuelType = fuelType;
+    }
 
     public User getOwner() {
         return owner;

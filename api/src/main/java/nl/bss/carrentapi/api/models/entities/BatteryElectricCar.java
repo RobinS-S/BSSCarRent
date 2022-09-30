@@ -9,7 +9,8 @@ import java.time.LocalDate;
 @Table(name = "battery_electric_cars", schema = "PUBLIC")
 @DiscriminatorValue("BEV")
 public class BatteryElectricCar extends Car {
-    protected BatteryElectricCar() { }
+    protected BatteryElectricCar() {
+    }
 
     public BatteryElectricCar(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
         super(brand, model, color, licensePlate, kilometersCurrent, pricePerKilometer, initialCost, constructed, apkUntil, owner);

@@ -33,6 +33,9 @@ public class Rental {
     @JoinColumn(name = "tenant_id")
     private User tenant;
 
+    /**
+     * We store the Car's Owner here because at a later point we might still want to know who it belonged to at this time
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User carOwner;
@@ -41,7 +44,8 @@ public class Rental {
     @JoinColumn(name = "car_id")
     private Car car;
 
-    protected Rental() {}
+    protected Rental() {
+    }
 
     public Rental(LocalDateTime reservedFrom, LocalDateTime reservedUntil, long kmPackage, User tenant, User carOwner, Car car) {
         this.reservedFrom = reservedFrom;

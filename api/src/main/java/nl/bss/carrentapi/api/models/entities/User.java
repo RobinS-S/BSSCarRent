@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends Person {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -19,24 +19,6 @@ public class User {
     @Column(length = 128)
     private String password;
 
-    @Column(length = 128)
-    private String firstName;
-
-    @Column(length = 128)
-    private String infix;
-
-    @Column(length = 128)
-    private String lastName;
-
-    @Column(length = 8)
-    private String phoneInternationalCode;
-
-    @Column(length = 16)
-    private String phoneNumber;
-
-    @Column
-    private LocalDate birthDate;
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     private Set<Car> ownedCars;
 
@@ -46,6 +28,12 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "carOwner")
     private Set<Rental> currentContracts;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "renter")
+    private Set<Invoice> rentalInvoices;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
+    private Set<Invoice> rentOutInvoices;
+
     @Column
     private long score;
 
@@ -53,26 +41,19 @@ public class User {
     }
 
     public User(String email, String password, String firstName, String infix, String lastName, String phoneInternationalCode, String phoneNumber, LocalDate birthDate) {
+        super(firstName, infix, lastName, phoneInternationalCode, phoneNumber, birthDate);
         this.email = email;
         this.password = password;
-        this.firstName = firstName;
-        this.infix = infix;
-        this.lastName = lastName;
-        this.phoneInternationalCode = phoneInternationalCode;
-        this.phoneNumber = phoneNumber;
-        this.birthDate = birthDate;
         this.ownedCars = new HashSet<>();
         this.rentals = new HashSet<>();
     }
 
-    public long getId() { return id; }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public long getId() {
+        return id;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public Set<Car> getOwnedCars() {
@@ -99,34 +80,6 @@ public class User {
         this.password = password;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getInfix() {
-        return infix;
-    }
-
-    public void setInfix(String infix) {
-        this.infix = infix;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public Set<Rental> getRentals() {
         return rentals;
     }
@@ -135,26 +88,24 @@ public class User {
         this.rentals = rentals;
     }
 
-    public Set<Rental> getCurrentContracts() { return currentContracts; }
+    public Set<Rental> getCurrentContracts() {
+        return currentContracts;
+    }
 
-    public void setCurrentContracts(Set<Rental> currentContracts) { this.currentContracts = currentContracts; }
+    public void setCurrentContracts(Set<Rental> currentContracts) {
+        this.currentContracts = currentContracts;
+    }
 
     public long getScore() {
         return score;
     }
 
-    public void setScore(long score) { this.score = score; }
-
-    public String getPhoneInternationalCode() { return phoneInternationalCode; }
-
-    public void setPhoneInternationalCode(String phoneInternationalCode) { this.phoneInternationalCode = phoneInternationalCode; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public void setScore(long score) {
+        this.score = score;
+    }
 
     @Override
     public String toString() {
-        return String.format("%s, cars: %d, rentals: %d", String.join(" ", this.firstName, this.infix, this.lastName), this.ownedCars.size(), this.rentals.size());
+        return String.format("%s, cars: %d, rentals: %d", super.toString(), this.ownedCars.size(), this.rentals.size());
     }
 }
