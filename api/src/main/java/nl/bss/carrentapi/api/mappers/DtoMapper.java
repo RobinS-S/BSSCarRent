@@ -27,7 +27,7 @@ public class DtoMapper {
         CarDto dto = modelMapper.map(car, CarDto.class);
         CarType type;
         if (car instanceof CombustionCar) {
-            type = CarType.COMUBUSTION;
+            type = CarType.COMBUSTION;
             dto.setCarType(type);
         } else if (car instanceof BatteryElectricCar) {
             type = CarType.BATTERY_ELECTRIC;
