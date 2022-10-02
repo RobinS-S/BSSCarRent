@@ -4,9 +4,10 @@ import nl.bss.carrentapi.api.models.entities.Car;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CarRepository extends JpaRepository<Car, Long> {
-    public List<Car> getByOwnerId(long userId);
+    public List<Car> findByOwnerId(long userId);
 
-    public Car getByLicensePlate(String licensePlate);
+    public Optional<Car> findByLicensePlate(String licensePlate);
 }
