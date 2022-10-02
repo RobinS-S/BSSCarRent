@@ -12,5 +12,5 @@ public enum CarType {
     /**
      * CombustionCar
      */
-    COMUBUSTION
+    COMBUSTION
 }
