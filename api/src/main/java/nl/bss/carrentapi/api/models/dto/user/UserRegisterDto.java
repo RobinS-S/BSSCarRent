@@ -1,12 +1,13 @@
-package nl.bss.carrentapi.api.models.dto;
+package nl.bss.carrentapi.api.models.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
-public class RegisterDto {
-
+public class UserRegisterDto {
     @NotEmpty
     private String email;
 
@@ -27,6 +28,8 @@ public class RegisterDto {
     @NotEmpty
     private String phoneNumber;
 
+    @NotNull
+    @Past
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
