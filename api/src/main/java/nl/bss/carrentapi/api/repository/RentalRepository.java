@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
-    public List<Rental> getRentalsByCarIdAndDeliveredAtIsNull(long carId);
+    public List<Rental> findRentalsByCarIdAndDeliveredAtIsNull(long carId);
 
-    public List<Rental> getRentalsByTenantIdAndDeliveredAtIsNull(long userId);
+    public List<Rental> findRentalsByTenantIdAndDeliveredAtIsNull(long userId);
 
-    public List<Rental> getRentalsByCarOwnerIdAndDeliveredAtIsNull(long userId);
+    public List<Rental> findRentalsByCarOwnerIdAndDeliveredAtIsNull(long userId);
 }

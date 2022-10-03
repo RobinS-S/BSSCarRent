@@ -31,7 +31,7 @@ public class RentalServiceImpl implements RentalService {
      */
     @Override
     public boolean isBeingRented(Car car) {
-        List<Rental> rentals = rentalRepository.getRentalsByCarIdAndDeliveredAtIsNull(car.getId());
+        List<Rental> rentals = rentalRepository.findRentalsByCarIdAndDeliveredAtIsNull(car.getId());
         return rentals != null && rentals.size() > 0;
     }
 
