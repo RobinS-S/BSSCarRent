@@ -1,10 +1,10 @@
 package nl.bss.carrentapi.api.mappers;
 
 import nl.bss.carrentapi.api.enums.CarType;
-import nl.bss.carrentapi.api.models.dto.CarDto;
 import nl.bss.carrentapi.api.models.dto.InvoiceDto;
-import nl.bss.carrentapi.api.models.dto.PersonDto;
 import nl.bss.carrentapi.api.models.dto.RentalDto;
+import nl.bss.carrentapi.api.models.dto.car.CarDto;
+import nl.bss.carrentapi.api.models.dto.user.UserDto;
 import nl.bss.carrentapi.api.models.entities.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -17,9 +17,8 @@ public class DtoMapper {
         this.modelMapper = modelMapper;
     }
 
-    public PersonDto convertToDto(User user) {
-        PersonDto dto = modelMapper.map(user, PersonDto.class);
-        dto.setPhoneNumber(String.format("+%s%s", user.getPhoneInternationalCode(), user.getPhoneNumber()));
+    public UserDto convertToDto(User user) {
+        UserDto dto = modelMapper.map(user, UserDto.class);
         return dto;
     }
 
