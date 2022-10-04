@@ -1,36 +1,42 @@
-package nl.bss.carrentapi.api.models.dto;
+package nl.bss.carrentapi.api.models.dto.car;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import nl.bss.carrentapi.api.enums.CarType;
 import nl.bss.carrentapi.api.enums.CombustionFuelType;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
 public class CarDto {
-    public long id;
-    public long ownerId;
+    private long id;
+    private long ownerId;
     @NotEmpty
     private String brand;
     @NotEmpty
     private String model;
     @NotEmpty
     private String color;
-    @NotEmpty
+
+    @Min(value = 1)
     private int kilometersCurrent;
-    @NotEmpty
+
+    @Min(value = 0)
     private Double pricePerKilometer;
     @NotEmpty
     private String licensePlate;
-    @NotEmpty
+    @Past
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate constructed;
-    @NotEmpty
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate apkUntil;
-    @NotEmpty
+    @NotNull
     private CarType carType;
     private CombustionFuelType fuelType;
+    @NotNull
+    private Double initialCost;
 
     public String getBrand() {
         return brand;
@@ -84,7 +90,7 @@ public class CarDto {
         return id;
     }
 
-    protected void setId(long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -127,4 +133,8 @@ public class CarDto {
     public void setFuelType(CombustionFuelType fuelType) {
         this.fuelType = fuelType;
     }
+
+    public Double getInitialCost() { return initialCost; }
+
+    public void setInitialCost(Double initialCost) { this.initialCost = initialCost; }
 }
