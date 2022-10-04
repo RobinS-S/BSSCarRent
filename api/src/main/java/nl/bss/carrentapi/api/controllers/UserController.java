@@ -88,7 +88,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserRegisterDto userDto) {
-        if (userRepository.findByEmail(userDto.getEmail()) != null) {
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
 
