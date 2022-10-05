@@ -52,7 +52,7 @@ public class Invoice {
         this.rental = rental;
     }
 
-    protected Invoice() {
+    protected Invoice(BigDecimal mileageTotal) {
     }
 
     public long getId() {
