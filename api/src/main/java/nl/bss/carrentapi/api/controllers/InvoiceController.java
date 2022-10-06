@@ -4,18 +4,13 @@ import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.dto.InvoiceDto;
 import nl.bss.carrentapi.api.models.entities.Invoice;
 import nl.bss.carrentapi.api.models.entities.User;
-import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.repository.InvoiceRepository;
-import nl.bss.carrentapi.api.repository.UserRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
-import nl.bss.carrentapi.api.services.interfaces.UserService;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,19 +21,12 @@ import java.util.stream.Collectors;
 @Validated
 public class InvoiceController {
     private final DtoMapper dtoMapper;
-    private final ModelMapper modelMapper;
-    private final UserService userService;
-    private final UserRepository userRepository;
-    private final CarRepository carRepository;
+
     private final AuthService authService;
     private final InvoiceRepository invoiceRepository;
 
-    public InvoiceController(DtoMapper dtoMapper, ModelMapper modelMapper, UserService userService, UserRepository userRepository, CarRepository carRepository, AuthService authService, InvoiceRepository invoiceRepository) {
+    public InvoiceController(DtoMapper dtoMapper,  AuthService authService, InvoiceRepository invoiceRepository) {
         this.dtoMapper = dtoMapper;
-        this.modelMapper = modelMapper;
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.carRepository = carRepository;
         this.authService = authService;
         this.invoiceRepository = invoiceRepository;
     }
@@ -82,7 +70,7 @@ public class InvoiceController {
 
         Optional<Invoice> foundInvoice = invoiceRepository.findById(id);
         if(foundInvoice.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         Invoice invoice = foundInvoice.get();
 
