@@ -51,10 +51,8 @@ public class Invoice {
         this.owner = owner;
         this.rental = rental;
     }
-
     protected Invoice() {
     }
-
     public long getId() {
         return id;
     }
