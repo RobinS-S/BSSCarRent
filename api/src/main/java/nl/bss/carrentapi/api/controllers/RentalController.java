@@ -5,6 +5,7 @@ import nl.bss.carrentapi.api.models.dto.RentalDto;
 import nl.bss.carrentapi.api.models.dto.car.CarDto;
 import nl.bss.carrentapi.api.models.dto.rental.RentalCreateDto;
 import nl.bss.carrentapi.api.models.entities.Car;
+import nl.bss.carrentapi.api.models.entities.Invoice;
 import nl.bss.carrentapi.api.models.entities.Rental;
 import nl.bss.carrentapi.api.models.entities.User;
 import nl.bss.carrentapi.api.repository.CarRepository;
@@ -13,16 +14,21 @@ import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import nl.bss.carrentapi.api.services.interfaces.RentalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
 import javax.validation.Path;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@RestController
+@RequestMapping("/api/rentals")
+@Validated
 public class RentalController {
 
     private final DtoMapper dtoMapper;
@@ -43,31 +49,7 @@ public class RentalController {
         this.authService = authService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<RentalDto>> indexAll() {
-        List<Rental> rentals = rentalRepository.findAll();
-
-        return ResponseEntity.ok(rentals.stream()
-                .map(dtoMapper::convertToDto)
-                .collect(Collectors.toList()));
-    }
-
-    @GetMapping("/mine")
-    public ResponseEntity<List<RentalDto>> findRentals(@RequestHeader("Authorization") String authHeader) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
-        User user = foundUser.get();
-
-        Set<Rental> rentals = user.getRentals();
-        return ResponseEntity.ok(rentals.stream()
-                .map(dtoMapper::convertToDto)
-                .collect(Collectors.toList()));
-    }
-
-    @GetMapping("/{id}/rentals")
+    @GetMapping("/car/{id}")
     public ResponseEntity<List<RentalDto>> getRentalsForCar(@PathVariable Long id) {
         List<Rental> rentals = rentalRepository.findRentalsByCarIdAndDeliveredAtIsNull(id);
         return ResponseEntity.ok(rentals.stream()
@@ -75,24 +57,36 @@ public class RentalController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/{id}/rentals")
-    public ResponseEntity<List<RentalDto>> getRentalsForCarOwner(@PathVariable Long id) {
-        List<Rental> rentals = rentalRepository.findRentalsByCarOwnerIdAndDeliveredAtIsNull(id);
+    @GetMapping("/owned")
+    public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@RequestHeader("Authorization") String authHeader) {
+        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
+        if(foundUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        User user = foundUser.get();
+
+        List<Rental> rentals = rentalRepository.findRentalsByTenantIdAndDeliveredAtIsNull(user.getId());
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/{id}/rentals")
-    public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@PathVariable Long id) {
-        List<Rental> rentals = rentalRepository.findRentalsByTenantIdAndDeliveredAtIsNull(id);
+    @GetMapping("/mine")
+    public ResponseEntity<List<RentalDto>> getRentalsForCarOwner(@RequestHeader("Authorization") String authHeader) {
+        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
+        if(foundUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        User user = foundUser.get();
+
+        List<Rental> rentals = rentalRepository.findRentalsByCarOwnerIdAndDeliveredAtIsNull(user.getId());
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<RentalDto> createRental(@RequestHeader("Authorization") String authHeader, @PathVariable Long carId, @Valid @RequestBody CarDto carDto, @RequestBody RentalCreateDto rentalCreateDto) {
+    @PostMapping()
+    public ResponseEntity<RentalDto> createRental(@RequestHeader("Authorization") String authHeader, @PathVariable Long carId, @RequestBody RentalCreateDto rentalCreateDto) {
         Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
         if(foundUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -105,8 +99,8 @@ public class RentalController {
         }
         Car car = foundCar.get();
 
-        if(!rentalRepository.findRentalsByCarIdAndDeliveredAtIsNull(carId).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(null);
+        if(!rentalRepository.findRentalsByCarIdAndDeliveredAtIsNull(car.getId()).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
         Rental rental = rentalService.createRental(rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil(), rentalCreateDto.getKmPackage(), user, car);
@@ -114,5 +108,53 @@ public class RentalController {
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
 
+    }
+
+    @PostMapping("/pickup")
+    public ResponseEntity<RentalDto> pickupCar(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
+        if(foundUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        Optional<Rental> foundRental = rentalRepository.findById(id);
+        if(foundRental.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        Rental rental = foundRental.get();
+        if(!rental.getReservedFrom().isAfter(LocalDateTime.now())
+                || rental.getReservedFrom().isEqual(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
+        rental.setDeliveredAt(LocalDateTime.now());
+        rentalRepository.save(rental);
+        
+        return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
+
+    }
+
+    @DeleteMapping("/current")
+    public ResponseEntity<RentalDto> cancelRental(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
+        if(foundUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        Optional<Rental> foundRental = rentalRepository.findById(id);
+        if(foundRental.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        Rental rental = foundRental.get();
+
+        if(!rental.getReservedFrom().isAfter(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+
+        rentalRepository.delete(rental);
+
+        return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
 }
