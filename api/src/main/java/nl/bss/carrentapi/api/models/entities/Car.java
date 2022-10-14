@@ -29,6 +29,9 @@ public abstract class Car implements CostCalculable {
     private int kilometersCurrent;
 
     @Column
+    private Double pricePerHour;
+
+    @Column
     private Double pricePerKilometer;
 
     @Column
@@ -53,12 +56,13 @@ public abstract class Car implements CostCalculable {
     protected Car() {
     }
 
-    public Car(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
+    public Car(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerHour, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
         this.brand = brand;
         this.model = model;
         this.color = color;
         this.licensePlate = licensePlate;
         this.kilometersCurrent = kilometersCurrent;
+        this.pricePerHour = pricePerHour;
         this.pricePerKilometer = pricePerKilometer;
         this.initialCost = initialCost;
         this.constructed = constructed;
@@ -70,7 +74,9 @@ public abstract class Car implements CostCalculable {
         return id;
     }
 
-    public void setId(long id) { this.id = id; }
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getModel() {
         return model;
@@ -162,5 +168,13 @@ public abstract class Car implements CostCalculable {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public Double getPricePerHour() {
+        return pricePerHour;
+    }
+
+    public void setPricePerHour(Double pricePerHour) {
+        this.pricePerHour = pricePerHour;
     }
 }

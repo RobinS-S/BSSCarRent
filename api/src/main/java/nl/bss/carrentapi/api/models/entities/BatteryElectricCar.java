@@ -12,8 +12,8 @@ public class BatteryElectricCar extends Car {
     protected BatteryElectricCar() {
     }
 
-    public BatteryElectricCar(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
-        super(brand, model, color, licensePlate, kilometersCurrent, pricePerKilometer, initialCost, constructed, apkUntil, owner);
+    public BatteryElectricCar(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerHour, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
+        super(brand, model, color, licensePlate, kilometersCurrent, pricePerHour, pricePerKilometer, initialCost, constructed, apkUntil, owner);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class BatteryElectricCar extends Car {
     }
 
     @Override
-    public Double calculateCostForKms(Double kms) {
-        return null;
+    public Double calculateCostForKms(long kms) {
+        return kms * (0.08 + this.getPricePerKilometer());
     }
 }

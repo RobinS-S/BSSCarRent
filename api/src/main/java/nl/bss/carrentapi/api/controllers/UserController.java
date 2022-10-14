@@ -93,7 +93,6 @@ public class UserController {
         }
 
         User user = userService.createUser(userDto.getEmail(), userDto.getPassword(), userDto.getFirstName(), userDto.getInfix(), userDto.getLastName(), userDto.getPhoneInternationalCode(), userDto.getPhoneNumber(), userDto.getBirthDate());
-        user = userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.convertToDto(user));
     }

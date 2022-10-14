@@ -21,13 +21,19 @@ public class Rental {
     private LocalDateTime deliveredAt;
 
     @Column
+    private LocalDateTime pickedUpAt;
+
+    @Column
     private long mileageTotal;
 
     @Column
-    private long drivingStyleScore;
+    private Double drivingStyleScore;
 
     @Column
     private long kmPackage;
+
+    @Column
+    private boolean isCancelled;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
@@ -54,6 +60,7 @@ public class Rental {
         this.tenant = tenant;
         this.carOwner = carOwner;
         this.car = car;
+        this.isCancelled = false;
     }
 
     public LocalDateTime getReservedFrom() {
@@ -88,11 +95,11 @@ public class Rental {
         this.mileageTotal = mileageTotal;
     }
 
-    public long getDrivingStyleScore() {
+    public Double getDrivingStyleScore() {
         return drivingStyleScore;
     }
 
-    public void setDrivingStyleScore(long drivingStyleScore) {
+    public void setDrivingStyleScore(Double drivingStyleScore) {
         this.drivingStyleScore = drivingStyleScore;
     }
 
@@ -127,4 +134,16 @@ public class Rental {
     public void setCar(Car car) {
         this.car = car;
     }
+
+    public User getCarOwner() { return carOwner; }
+
+    public void setCarOwner(User carOwner) { this.carOwner = carOwner; }
+
+    public LocalDateTime getPickedUpAt() { return pickedUpAt; }
+
+    public void setPickedUpAt(LocalDateTime pickedUp) { this.pickedUpAt = pickedUp; }
+
+    public boolean isCancelled() { return isCancelled; }
+
+    public void setCancelled(boolean cancelled) { isCancelled = cancelled; }
 }

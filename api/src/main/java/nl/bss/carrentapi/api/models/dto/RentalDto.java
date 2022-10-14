@@ -14,7 +14,7 @@ public class RentalDto {
 
     private long mileageTotal;
 
-    private long drivingStyleScore;
+    private Double drivingStyleScore;
 
     private long kmPackage;
 
@@ -62,11 +62,11 @@ public class RentalDto {
         this.mileageTotal = mileageTotal;
     }
 
-    public long getDrivingStyleScore() {
+    public Double getDrivingStyleScore() {
         return drivingStyleScore;
     }
 
-    public void setDrivingStyleScore(long drivingStyleScore) {
+    public void setDrivingStyleScore(Double drivingStyleScore) {
         this.drivingStyleScore = drivingStyleScore;
     }
 

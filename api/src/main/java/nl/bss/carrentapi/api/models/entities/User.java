@@ -2,7 +2,6 @@ package nl.bss.carrentapi.api.models.entities;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 

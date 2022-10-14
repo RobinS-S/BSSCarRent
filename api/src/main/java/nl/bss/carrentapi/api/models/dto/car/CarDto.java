@@ -19,11 +19,13 @@ public class CarDto {
     private String model;
     @NotEmpty
     private String color;
-
     @Min(value = 1)
     private int kilometersCurrent;
-
     @Min(value = 0)
+    @NotNull
+    private Double pricePerHour;
+    @Min(value = 0)
+    @NotNull
     private Double pricePerKilometer;
     @NotEmpty
     private String licensePlate;
@@ -134,7 +136,19 @@ public class CarDto {
         this.fuelType = fuelType;
     }
 
-    public Double getInitialCost() { return initialCost; }
+    public Double getInitialCost() {
+        return initialCost;
+    }
 
-    public void setInitialCost(Double initialCost) { this.initialCost = initialCost; }
+    public void setInitialCost(Double initialCost) {
+        this.initialCost = initialCost;
+    }
+
+    public Double getPricePerHour() {
+        return pricePerHour;
+    }
+
+    public void setPricePerHour(Double pricePerHour) {
+        this.pricePerHour = pricePerHour;
+    }
 }

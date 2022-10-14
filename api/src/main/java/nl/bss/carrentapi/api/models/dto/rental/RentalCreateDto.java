@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 
 public class RentalCreateDto {
     @FutureOrPresent
-    @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss a")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedFrom;
     @Future
-    @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss a")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedUntil;
     private long kmPackage;
     private long carId;
