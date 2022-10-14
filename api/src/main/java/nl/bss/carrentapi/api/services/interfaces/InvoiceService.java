@@ -4,8 +4,6 @@ import nl.bss.carrentapi.api.models.entities.Invoice;
 import nl.bss.carrentapi.api.models.entities.Rental;
 import nl.bss.carrentapi.api.models.entities.User;
 
-import java.math.BigDecimal;
-
 public interface InvoiceService {
-    public Invoice createInvoice(BigDecimal mileageTotal, BigDecimal mileageCosts, long kmPackage, BigDecimal overKmPackageCosts, BigDecimal totalPrice, Boolean isPaid, User renter, User owner, Rental rental);
+    public Invoice createInvoice(long mileageTotal, Double mileageCosts, long kmPackage, Double overKmPackageCosts, Double totalPrice, Boolean isPaid, User renter, User owner, Rental rental);
 }

@@ -41,9 +41,15 @@ public class UserUpdateDto {
         return phoneNumber;
     }
 
-    public String getPhoneInternationalCode() { return phoneInternationalCode; }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-    public void setPhoneInternationalCode(String phoneInternationalCode) { this.phoneInternationalCode = phoneInternationalCode; }
+    public String getPhoneInternationalCode() {
+        return phoneInternationalCode;
+    }
 
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public void setPhoneInternationalCode(String phoneInternationalCode) {
+        this.phoneInternationalCode = phoneInternationalCode;
+    }
 }

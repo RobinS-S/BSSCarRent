@@ -4,6 +4,7 @@ import nl.bss.carrentapi.api.enums.CarType;
 import nl.bss.carrentapi.api.models.dto.InvoiceDto;
 import nl.bss.carrentapi.api.models.dto.RentalDto;
 import nl.bss.carrentapi.api.models.dto.car.CarDto;
+import nl.bss.carrentapi.api.models.dto.rental.RentalPeriodDto;
 import nl.bss.carrentapi.api.models.dto.user.UserDto;
 import nl.bss.carrentapi.api.models.entities.*;
 import org.modelmapper.ModelMapper;
@@ -40,6 +41,11 @@ public class DtoMapper {
 
     public RentalDto convertToDto(Rental rental) {
         RentalDto dto = modelMapper.map(rental, RentalDto.class);
+        return dto;
+    }
+
+    public RentalPeriodDto convertToRentalPeriodDto(Rental rental) {
+        RentalPeriodDto dto = modelMapper.map(rental, RentalPeriodDto.class);
         return dto;
     }
 

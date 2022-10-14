@@ -11,18 +11,20 @@ public class RentalDto {
     private long id;
     @NotNull
     @FutureOrPresent
-    @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss a")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedFrom;
     @Future
-    @JsonFormat(pattern = "dd/MM/yyyy hh:mm:ss a")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedUntil;
     private LocalDateTime deliveredAt;
     private long mileageTotal;
-    private long drivingStyleScore;
+    private Double drivingStyleScore;
     private long kmPackage;
     private long tenantId;
     private long carOwnerId;
     private long carId;
+    private LocalDateTime pickedUpAt;
+    private boolean isCancelled;
 
     public long getId() {
         return id;
@@ -64,11 +66,11 @@ public class RentalDto {
         this.mileageTotal = mileageTotal;
     }
 
-    public long getDrivingStyleScore() {
+    public Double getDrivingStyleScore() {
         return drivingStyleScore;
     }
 
-    public void setDrivingStyleScore(long drivingStyleScore) {
+    public void setDrivingStyleScore(Double drivingStyleScore) {
         this.drivingStyleScore = drivingStyleScore;
     }
 
@@ -103,4 +105,12 @@ public class RentalDto {
     public void setCarId(long carId) {
         this.carId = carId;
     }
+
+    public LocalDateTime isPickedUpAt() { return pickedUpAt; }
+
+    public void setPickedUpAt(LocalDateTime pickedUpAt) { this.pickedUpAt = pickedUpAt; }
+
+    public boolean isCancelled() { return isCancelled; }
+
+    public void setIsCancelled(boolean cancelled) { isCancelled = cancelled; }
 }

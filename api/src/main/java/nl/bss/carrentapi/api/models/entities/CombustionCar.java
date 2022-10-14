@@ -14,8 +14,8 @@ public class CombustionCar extends Car {
     protected CombustionCar() {
     }
 
-    public CombustionCar(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, CombustionFuelType combustionFuelType, User owner) {
-        super(brand, model, color, licensePlate, kilometersCurrent, pricePerKilometer, initialCost, constructed, apkUntil, owner);
+    public CombustionCar(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerHour, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, CombustionFuelType combustionFuelType, User owner) {
+        super(brand, model, color, licensePlate, kilometersCurrent, pricePerHour, pricePerKilometer, initialCost, constructed, apkUntil, owner);
         super.setFuelType(combustionFuelType);
     }
 
@@ -25,7 +25,19 @@ public class CombustionCar extends Car {
     }
 
     @Override
-    public Double calculateCostForKms(Double kms) {
-        return null;
+    public Double calculateCostForKms(long kms) {
+        Double pricePerKm = 0.0;
+        switch(this.getFuelType()) {
+            case GAS:
+                pricePerKm = 0.07;
+                break;
+            case GASOLINE:
+                pricePerKm = 0.14;
+                break;
+            case DIESEL:
+                pricePerKm = 0.08;
+                break;
+        }
+        return kms * (pricePerKm + this.getPricePerKilometer());
     }
 }

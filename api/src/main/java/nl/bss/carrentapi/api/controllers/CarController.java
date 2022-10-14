@@ -85,16 +85,16 @@ public class CarController {
         Car car = null;
         switch(carDto.getCarType()) {
             case FUEL_CELL:
-                car = new FuelCellCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), user);
+                car = new FuelCellCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), user);
                 break;
             case COMBUSTION:
                 if(carDto.getFuelType() == null) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
                 }
-                car = new CombustionCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getFuelType(), user);
+                car = new CombustionCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getFuelType(), user);
                 break;
             case BATTERY_ELECTRIC:
-                car = new BatteryElectricCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), user);
+                car = new BatteryElectricCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), user);
                 break;
         }
         car = carRepository.save(car);

@@ -1,7 +1,6 @@
 package nl.bss.carrentapi.api.models.entities;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "invoices", schema = "PUBLIC")
@@ -12,19 +11,19 @@ public class Invoice {
     private long id;
 
     @Column
-    private BigDecimal mileageTotal;
+    private long mileageTotal;
 
     @Column
-    private BigDecimal mileageCosts;
+    private Double mileageCosts;
 
     @Column
     private long kmPackage;
 
     @Column
-    private BigDecimal overKmPackageCosts;
+    private Double overKmPackageCosts;
 
     @Column
-    private BigDecimal totalPrice;
+    private Double totalPrice;
 
     @Column
     private Boolean isPaid;
@@ -40,7 +39,7 @@ public class Invoice {
     @OneToOne
     private Rental rental;
 
-    public Invoice(BigDecimal mileageTotal, BigDecimal mileageCosts, long kmPackage, BigDecimal overKmPackageCosts, BigDecimal totalPrice, Boolean isPaid, User renter, User owner, Rental rental) {
+    public Invoice(long mileageTotal, Double mileageCosts, long kmPackage, Double overKmPackageCosts, Double totalPrice, Boolean isPaid, User renter, User owner, Rental rental) {
         this.mileageTotal = mileageTotal;
         this.mileageCosts = mileageCosts;
         this.kmPackage = kmPackage;
@@ -51,8 +50,10 @@ public class Invoice {
         this.owner = owner;
         this.rental = rental;
     }
+
     protected Invoice() {
     }
+
     public long getId() {
         return id;
     }
@@ -61,19 +62,19 @@ public class Invoice {
         this.id = id;
     }
 
-    public BigDecimal getMileageTotal() {
+    public long getMileageTotal() {
         return mileageTotal;
     }
 
-    public void setMileageTotal(BigDecimal mileageTotal) {
+    public void setMileageTotal(long mileageTotal) {
         this.mileageTotal = mileageTotal;
     }
 
-    public BigDecimal getMileageCosts() {
+    public Double getMileageCosts() {
         return mileageCosts;
     }
 
-    public void setMileageCosts(BigDecimal mileageCosts) {
+    public void setMileageCosts(Double mileageCosts) {
         this.mileageCosts = mileageCosts;
     }
 
@@ -85,19 +86,19 @@ public class Invoice {
         this.kmPackage = kmPackage;
     }
 
-    public BigDecimal getOverKmPackageCosts() {
+    public Double getOverKmPackageCosts() {
         return overKmPackageCosts;
     }
 
-    public void setOverKmPackageCosts(BigDecimal overKmPackageCosts) {
+    public void setOverKmPackageCosts(Double overKmPackageCosts) {
         this.overKmPackageCosts = overKmPackageCosts;
     }
 
-    public BigDecimal getTotalPrice() {
+    public Double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(BigDecimal totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
 

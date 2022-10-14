@@ -1,19 +1,17 @@
 package nl.bss.carrentapi.api.models.dto;
 
-import java.math.BigDecimal;
-
 public class InvoiceDto {
     private long id;
 
-    private BigDecimal mileageTotal;
+    private Double mileageTotal;
 
-    private BigDecimal mileageCosts;
+    private Double mileageCosts;
 
     private long kmPackage;
 
-    private BigDecimal overKmPackageCosts;
+    private Double overKmPackageCosts;
 
-    private BigDecimal totalPrice;
+    private Double totalPrice;
 
     private Boolean isPaid;
 
@@ -31,19 +29,19 @@ public class InvoiceDto {
         this.id = id;
     }
 
-    public BigDecimal getMileageTotal() {
+    public Double getMileageTotal() {
         return mileageTotal;
     }
 
-    public void setMileageTotal(BigDecimal mileageTotal) {
+    public void setMileageTotal(Double mileageTotal) {
         this.mileageTotal = mileageTotal;
     }
 
-    public BigDecimal getMileageCosts() {
+    public Double getMileageCosts() {
         return mileageCosts;
     }
 
-    public void setMileageCosts(BigDecimal mileageCosts) {
+    public void setMileageCosts(Double mileageCosts) {
         this.mileageCosts = mileageCosts;
     }
 
@@ -55,19 +53,19 @@ public class InvoiceDto {
         this.kmPackage = kmPackage;
     }
 
-    public BigDecimal getOverKmPackageCosts() {
+    public Double getOverKmPackageCosts() {
         return overKmPackageCosts;
     }
 
-    public void setOverKmPackageCosts(BigDecimal overKmPackageCosts) {
+    public void setOverKmPackageCosts(Double overKmPackageCosts) {
         this.overKmPackageCosts = overKmPackageCosts;
     }
 
-    public BigDecimal getTotalPrice() {
+    public Double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(BigDecimal totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
 
@@ -95,11 +93,11 @@ public class InvoiceDto {
         this.ownerId = ownerId;
     }
 
-    public long getRental() {
+    public long getRentalId() {
         return rentalId;
     }
 
-    public void setRental(long rental) {
+    public void setRentalId(long rental) {
         this.rentalId = rentalId;
     }
 }
