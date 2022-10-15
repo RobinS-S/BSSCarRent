@@ -1,17 +1,18 @@
 package nl.bss.carrentapi.api.controllers;
 
+import lombok.AllArgsConstructor;
+import nl.bss.carrentapi.api.dto.car.CarDto;
+import nl.bss.carrentapi.api.dto.user.UserDto;
+import nl.bss.carrentapi.api.dto.user.UserRegisterDto;
+import nl.bss.carrentapi.api.dto.user.UserUpdateDto;
+import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
-import nl.bss.carrentapi.api.models.dto.user.UserRegisterDto;
-import nl.bss.carrentapi.api.models.dto.car.CarDto;
-import nl.bss.carrentapi.api.models.dto.user.UserDto;
-import nl.bss.carrentapi.api.models.dto.user.UserUpdateDto;
-import nl.bss.carrentapi.api.models.entities.Car;
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.Car;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.repository.UserRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import nl.bss.carrentapi.api.services.interfaces.UserService;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/users")
 @Validated
+@AllArgsConstructor
 public class UserController {
     private final DtoMapper dtoMapper;
     private final ModelMapper modelMapper;
@@ -33,15 +35,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final CarRepository carRepository;
     private final AuthService authService;
-
-    public UserController(DtoMapper dtoMapper, ModelMapper modelMapper, UserService userService, UserRepository userRepository, CarRepository carRepository, AuthService authService) {
-        this.dtoMapper = dtoMapper;
-        this.modelMapper = modelMapper;
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.carRepository = carRepository;
-        this.authService = authService;
-    }
 
     @GetMapping
     public ResponseEntity<List<UserDto>> index() {
@@ -73,13 +66,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @Valid @RequestBody UserUpdateDto updateDto) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if (foundUser.isEmpty() || !id.equals(foundUser.get().getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    public ResponseEntity<UserDto> update(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @Valid @RequestBody UserUpdateDto updateDto) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
+        if (!id.equals(user.getId())) {
+            throw new NotAllowedException();
         }
 
-        User user = foundUser.get();
         modelMapper.map(updateDto, user);
         userRepository.save(user);
 

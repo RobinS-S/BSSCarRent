@@ -1,15 +1,17 @@
 package nl.bss.carrentapi.api.controllers;
 
+import lombok.AllArgsConstructor;
+import nl.bss.carrentapi.api.dto.InvoiceDto;
+import nl.bss.carrentapi.api.dto.RentalDto;
+import nl.bss.carrentapi.api.dto.rental.RentalCreateDto;
+import nl.bss.carrentapi.api.dto.rental.RentalDeliverDto;
+import nl.bss.carrentapi.api.dto.rental.RentalPeriodDto;
+import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
-import nl.bss.carrentapi.api.models.dto.InvoiceDto;
-import nl.bss.carrentapi.api.models.dto.RentalDto;
-import nl.bss.carrentapi.api.models.dto.rental.RentalCreateDto;
-import nl.bss.carrentapi.api.models.dto.rental.RentalDeliverDto;
-import nl.bss.carrentapi.api.models.dto.rental.RentalPeriodDto;
-import nl.bss.carrentapi.api.models.entities.Car;
-import nl.bss.carrentapi.api.models.entities.Invoice;
-import nl.bss.carrentapi.api.models.entities.Rental;
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.Car;
+import nl.bss.carrentapi.api.models.Invoice;
+import nl.bss.carrentapi.api.models.Rental;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.repository.InvoiceRepository;
 import nl.bss.carrentapi.api.repository.RentalRepository;
@@ -29,39 +31,19 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/rentals")
 @Validated
+@AllArgsConstructor
 public class RentalController {
-
     private final DtoMapper dtoMapper;
-
     private final RentalRepository rentalRepository;
-
     private final CarRepository carRepository;
-
     private final RentalService rentalService;
-
     private final AuthService authService;
-
     private final InvoiceService invoiceService;
-
     private final InvoiceRepository invoiceRepository;
 
-    public RentalController(DtoMapper dtoMapper, RentalRepository rentalRepository, CarRepository carRepository, RentalService rentalService, AuthService authService, InvoiceService invoiceService, InvoiceRepository invoiceRepository) {
-        this.dtoMapper = dtoMapper;
-        this.rentalRepository = rentalRepository;
-        this.carRepository = carRepository;
-        this.rentalService = rentalService;
-        this.authService = authService;
-        this.invoiceService = invoiceService;
-        this.invoiceRepository = invoiceRepository;
-    }
-
     @GetMapping("/car/{id}")
-    public ResponseEntity<List<RentalDto>> getRentalsForCar(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
+    public ResponseEntity<List<RentalDto>> getRentalsForCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
         List<Rental> rentals = rentalRepository.findRentalsByCarId(id);
         return ResponseEntity.ok(rentals.stream()
@@ -71,13 +53,7 @@ public class RentalController {
     }
 
     @GetMapping("/car/{id}/periods")
-    public ResponseEntity<List<RentalPeriodDto>> getRentalPeriodsForCar(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
-
+    public ResponseEntity<List<RentalPeriodDto>> getRentalPeriodsForCar(@PathVariable Long id) {
         List<Rental> rentals = rentalRepository.findRentalsByCarId(id);
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToRentalPeriodDto)
@@ -85,12 +61,8 @@ public class RentalController {
     }
 
     @GetMapping("/owned")
-    public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@RequestHeader("Authorization") String authHeader) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
+    public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
         List<Rental> rentals = rentalRepository.findRentalsByCarOwnerId(user.getId());
         return ResponseEntity.ok(rentals.stream()
@@ -99,40 +71,32 @@ public class RentalController {
     }
 
     @GetMapping("/mine")
-    public ResponseEntity<List<RentalDto>> getRentalsForCarOwner(@RequestHeader("Authorization") String authHeader) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
+    public ResponseEntity<List<RentalDto>> getRentalsForCarOwner(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Rental> rentals = rentalRepository.findRentalsByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+        List<Rental> rentals = rentalRepository.findRentalsByTenantId(user.getId());
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
     }
 
     @PostMapping
-    public ResponseEntity<RentalDto> createRental(@RequestHeader("Authorization") String authHeader, @RequestBody RentalCreateDto rentalCreateDto) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
+    public ResponseEntity<RentalDto> createRental(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody RentalCreateDto rentalCreateDto) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
         Optional<Car> foundCar = carRepository.findById(rentalCreateDto.getCarId());
-        if(foundCar.isEmpty()) {
+        if (foundCar.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         Car car = foundCar.get();
 
-        List<Rental> existingRentalsForUser = rentalRepository.findRentalsByCarIdAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
-        if(!existingRentalsForUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+        if (existingRentalsForUser.isPresent()) {
+            throw new NotAllowedException("You already have a rental that you need to cancel first.");
         }
 
-        if(!rentalRepository.findRentalsByCarIdBetween(car.getId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil()).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        if (!rentalRepository.findRentalsByCarIdBetween(car.getId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil()).isEmpty()) {
+            throw new NotAllowedException("This car has already been booked between these times.");
         }
 
         Rental rental = rentalService.createRental(rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil(), rentalCreateDto.getKmPackage(), user, car);
@@ -143,24 +107,30 @@ public class RentalController {
     }
 
     @PostMapping("{id}/markPickedUp")
-    public ResponseEntity<RentalDto> pickupCar(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
+    public ResponseEntity<RentalDto> pickupCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
         Optional<Rental> foundRental = rentalRepository.findById(id);
-        if(foundRental.isEmpty()) {
+        if (foundRental.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
         Rental rental = foundRental.get();
-        if(!LocalDateTime.now().isAfter(rental.getReservedFrom())
-                || rental.getTenant() != user
-                || rental.getPickedUpAt() != null
-                || rental.getDeliveredAt() != null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        if (!LocalDateTime.now().isAfter(rental.getReservedFrom()))
+        {
+            throw new NotAllowedException("The rental start time hasn't started yet.");
+        }
+
+        if(rental.getTenant() != user) {
+            throw new NotAllowedException("This is not your rental.");
+        }
+
+        if(rental.getPickedUpAt() != null) {
+            throw new NotAllowedException("This rental has already been picked up.");
+        }
+
+        if(rental.getDeliveredAt() != null) {
+            throw new NotAllowedException("This rental has already been delivered.");
         }
 
         rental.setPickedUpAt(LocalDateTime.now());
@@ -170,24 +140,31 @@ public class RentalController {
     }
 
     @PostMapping("{id}/markDelivered")
-    public ResponseEntity<InvoiceDto> deliverCar(@RequestHeader("Authorization") String authHeader, @PathVariable Long id, @RequestBody RentalDeliverDto deliverDto) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-        User user = foundUser.get();
+    public ResponseEntity<InvoiceDto> deliverCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestBody RentalDeliverDto deliverDto) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
         Optional<Rental> foundRental = rentalRepository.findById(id);
-        if(foundRental.isEmpty()) {
+        if (foundRental.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
         Rental rental = foundRental.get();
-        if(!LocalDateTime.now().isAfter(rental.getReservedFrom())
-                || rental.getTenant() != user
-                || rental.getPickedUpAt() == null
-                || rental.getDeliveredAt() != null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+
+        if (!LocalDateTime.now().isAfter(rental.getReservedFrom()))
+        {
+            throw new NotAllowedException("The rental start time hasn't started yet.");
+        }
+
+        if(rental.getTenant() != user) {
+            throw new NotAllowedException("This is not your rental.");
+        }
+
+        if(rental.getPickedUpAt() == null) {
+            throw new NotAllowedException("This rental has not been picked up yet.");
+        }
+
+        if(rental.getDeliveredAt() != null) {
+            throw new NotAllowedException("This rental has already been delivered.");
         }
 
         rental.setDeliveredAt(LocalDateTime.now());
@@ -202,46 +179,40 @@ public class RentalController {
         //TODO: calculate over km costs
         Invoice invoice = invoiceService.createInvoice(kmsDriven, kmsPrice, rental.getKmPackage(), 0.0, kmsPrice, false, rental.getTenant(), rental.getCarOwner(), rental);
         invoice = invoiceRepository.save(invoice);
-        
+
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(invoice));
     }
 
-    @DeleteMapping("/current")
-    public ResponseEntity<RentalDto> cancelRental(@RequestHeader("Authorization") String authHeader) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+    @GetMapping("/current")
+    public ResponseEntity<RentalDto> getActiveRentalAsTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        Optional<Rental> foundRental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(foundUser.get().getId());
-        if(foundRental.isEmpty()) {
+        Optional<Rental> foundRental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+        if (foundRental.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
         Rental rental = foundRental.get();
-
-        if(rental.getReservedFrom().isAfter(LocalDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
-
-        rentalRepository.delete(rental);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
 
-    @GetMapping("/current")
-    public ResponseEntity<RentalDto> getActiveRentalAsTenant(@RequestHeader("Authorization") String authHeader) {
-        Optional<User> foundUser = authService.getCurrentUserByAuthHeader(authHeader);
-        if(foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+    @DeleteMapping("/current")
+    public ResponseEntity<RentalDto> cancelRental(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        Optional<Rental> foundRental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(foundUser.get().getId());
-        if(foundRental.isEmpty()) {
+        Optional<Rental> foundRental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+        if (foundRental.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
         Rental rental = foundRental.get();
+
+        if (rental.getReservedFrom().isAfter(LocalDateTime.now())) {
+            throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
+        }
+
+        rentalRepository.delete(rental);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }

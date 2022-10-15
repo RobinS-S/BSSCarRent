@@ -1,4 +1,4 @@
-package nl.bss.carrentapi.api.models.entities;
+package nl.bss.carrentapi.api.models;
 
 import nl.bss.carrentapi.api.enums.CombustionFuelType;
 
@@ -26,8 +26,8 @@ public class CombustionCar extends Car {
 
     @Override
     public Double calculateCostForKms(long kms) {
-        Double pricePerKm = 0.0;
-        switch(this.getFuelType()) {
+        double pricePerKm = 0.0;
+        switch (this.getFuelType()) {
             case GAS:
                 pricePerKm = 0.07;
                 break;
