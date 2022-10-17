@@ -1,9 +1,7 @@
 package nl.bss.carrentapi.api.services.interfaces;
 
-import nl.bss.carrentapi.api.models.entities.User;
-
-import java.util.Optional;
+import nl.bss.carrentapi.api.models.User;
 
 public interface AuthService {
-    public Optional<User> getCurrentUserByAuthHeader(String base64AuthHeaderValue);
+    User getCurrentUserByAuthHeader(String base64AuthHeaderValue);
 }

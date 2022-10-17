@@ -1,8 +1,8 @@
 package nl.bss.carrentapi.api.services;
 
-import nl.bss.carrentapi.api.models.entities.Invoice;
-import nl.bss.carrentapi.api.models.entities.Rental;
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.Invoice;
+import nl.bss.carrentapi.api.models.Rental;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.services.interfaces.InvoiceService;
 import org.springframework.stereotype.Service;
 

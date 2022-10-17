@@ -1,6 +1,6 @@
 package nl.bss.carrentapi.api.repository;
 
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

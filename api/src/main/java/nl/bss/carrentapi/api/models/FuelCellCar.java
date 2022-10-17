@@ -1,4 +1,4 @@
-package nl.bss.carrentapi.api.models.entities;
+package nl.bss.carrentapi.api.models;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

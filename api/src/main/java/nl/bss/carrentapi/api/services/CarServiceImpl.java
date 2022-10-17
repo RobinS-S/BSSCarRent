@@ -1,10 +1,10 @@
 package nl.bss.carrentapi.api.services;
 
 import nl.bss.carrentapi.api.enums.CombustionFuelType;
-import nl.bss.carrentapi.api.models.entities.BatteryElectricCar;
-import nl.bss.carrentapi.api.models.entities.CombustionCar;
-import nl.bss.carrentapi.api.models.entities.FuelCellCar;
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.BatteryElectricCar;
+import nl.bss.carrentapi.api.models.CombustionCar;
+import nl.bss.carrentapi.api.models.FuelCellCar;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.services.interfaces.CarService;
 import org.springframework.stereotype.Service;
 

@@ -1,14 +1,14 @@
 package nl.bss.carrentapi.api.services;
 
-import nl.bss.carrentapi.api.models.entities.Car;
-import nl.bss.carrentapi.api.models.entities.Rental;
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.Car;
+import nl.bss.carrentapi.api.models.Rental;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.RentalRepository;
 import nl.bss.carrentapi.api.services.interfaces.RentalService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RentalServiceImpl implements RentalService {
@@ -31,8 +31,8 @@ public class RentalServiceImpl implements RentalService {
      */
     @Override
     public boolean isBeingRented(Car car) {
-        List<Rental> rentals = rentalRepository.findRentalsByCarIdAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
-        return rentals != null && rentals.size() > 0;
+        Optional<Rental> rental = rentalRepository.findRentalByCarIdAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
+        return rental.isPresent();
     }
 
     /**

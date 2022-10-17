@@ -1,6 +1,6 @@
 package nl.bss.carrentapi.api.services;
 
-import nl.bss.carrentapi.api.models.entities.User;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.UserRepository;
 import nl.bss.carrentapi.api.services.interfaces.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

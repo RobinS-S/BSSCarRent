@@ -1,12 +1,12 @@
 package nl.bss.carrentapi.api.mappers;
 
+import nl.bss.carrentapi.api.dto.InvoiceDto;
+import nl.bss.carrentapi.api.dto.RentalDto;
+import nl.bss.carrentapi.api.dto.car.CarDto;
+import nl.bss.carrentapi.api.dto.rental.RentalPeriodDto;
+import nl.bss.carrentapi.api.dto.user.UserDto;
 import nl.bss.carrentapi.api.enums.CarType;
-import nl.bss.carrentapi.api.models.dto.InvoiceDto;
-import nl.bss.carrentapi.api.models.dto.RentalDto;
-import nl.bss.carrentapi.api.models.dto.car.CarDto;
-import nl.bss.carrentapi.api.models.dto.rental.RentalPeriodDto;
-import nl.bss.carrentapi.api.models.dto.user.UserDto;
-import nl.bss.carrentapi.api.models.entities.*;
+import nl.bss.carrentapi.api.models.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +19,7 @@ public class DtoMapper {
     }
 
     public UserDto convertToDto(User user) {
-        UserDto dto = modelMapper.map(user, UserDto.class);
-        return dto;
+        return modelMapper.map(user, UserDto.class);
     }
 
     public CarDto convertToDto(Car car) {
@@ -40,17 +39,14 @@ public class DtoMapper {
     }
 
     public RentalDto convertToDto(Rental rental) {
-        RentalDto dto = modelMapper.map(rental, RentalDto.class);
-        return dto;
+        return modelMapper.map(rental, RentalDto.class);
     }
 
     public RentalPeriodDto convertToRentalPeriodDto(Rental rental) {
-        RentalPeriodDto dto = modelMapper.map(rental, RentalPeriodDto.class);
-        return dto;
+        return modelMapper.map(rental, RentalPeriodDto.class);
     }
 
     public InvoiceDto convertToDto(Invoice invoice) {
-        InvoiceDto dto = modelMapper.map(invoice, InvoiceDto.class);
-        return dto;
+        return modelMapper.map(invoice, InvoiceDto.class);
     }
 }
