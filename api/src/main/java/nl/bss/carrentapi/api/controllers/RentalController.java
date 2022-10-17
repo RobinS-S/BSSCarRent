@@ -95,6 +95,10 @@ public class RentalController {
             throw new NotAllowedException("You already have a rental that you need to cancel first.");
         }
 
+        if (rentalCreateDto.getReservedFrom().isBefore(LocalDateTime.now()) || rentalCreateDto.getReservedUntil().isBefore(LocalDateTime.now())) {
+            throw new NotAllowedException("You can't create a Rental in the past!");
+        }
+
         if (!rentalRepository.findRentalsByCarIdBetween(car.getId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil()).isEmpty()) {
             throw new NotAllowedException("This car has already been booked between these times.");
         }
