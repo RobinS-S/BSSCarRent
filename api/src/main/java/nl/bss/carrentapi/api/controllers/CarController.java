@@ -8,6 +8,7 @@ import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.*;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
+import nl.bss.carrentapi.api.services.interfaces.CarService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ public class CarController {
     private final DtoMapper dtoMapper;
     private final ModelMapper modelMapper;
     private final CarRepository carRepository;
+    private final CarService carService;
     private final AuthService authService;
 
     @GetMapping("/{id}")
@@ -65,16 +67,16 @@ public class CarController {
         Car car = null;
         switch (carDto.getCarType()) {
             case FUEL_CELL:
-                car = new FuelCellCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), user);
+                car = carService.createFuelCellCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getLat(), carDto.getLng(), user);
                 break;
             case COMBUSTION:
                 if (carDto.getFuelType() == null) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
                 }
-                car = new CombustionCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getFuelType(), user);
+                car = carService.createCombustionCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getLat(), carDto.getLng(), carDto.getFuelType(), user);
                 break;
             case BATTERY_ELECTRIC:
-                car = new BatteryElectricCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), user);
+                car = carService.createBatteryElectricCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getLat(), carDto.getLng(), user);
                 break;
         }
         car = carRepository.save(car);

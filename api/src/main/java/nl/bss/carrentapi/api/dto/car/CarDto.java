@@ -28,7 +28,7 @@ public class CarDto {
     private String color;
 
     @Min(value = 1)
-    private int kilometersCurrent;
+    private long kilometersCurrent;
 
     @Min(value = 0)
     @NotNull
@@ -55,4 +55,10 @@ public class CarDto {
 
     @NotNull
     private Double initialCost;
+
+    @NotNull
+    private Double lat;
+
+    @NotNull
+    private Double lng;
 }

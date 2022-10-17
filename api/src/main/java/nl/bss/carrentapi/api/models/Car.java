@@ -30,7 +30,7 @@ public abstract class Car implements CostCalculable {
     private String color;
 
     @Column
-    private int kilometersCurrent;
+    private long kilometersCurrent;
 
     @Column
     private Double pricePerHour;
@@ -57,10 +57,16 @@ public abstract class Car implements CostCalculable {
     @Column
     private CombustionFuelType fuelType;
 
+    @Column
+    private Double lat;
+
+    @Column
+    private Double lng;
+
     protected Car() {
     }
 
-    public Car(String brand, String model, String color, String licensePlate, int kilometersCurrent, Double pricePerHour, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, User owner) {
+    public Car(String brand, String model, String color, String licensePlate, long kilometersCurrent, Double pricePerHour, Double pricePerKilometer, Double initialCost, LocalDate constructed, LocalDate apkUntil, Double lat, Double lng, User owner) {
         this.brand = brand;
         this.model = model;
         this.color = color;
@@ -71,6 +77,8 @@ public abstract class Car implements CostCalculable {
         this.initialCost = initialCost;
         this.constructed = constructed;
         this.apkUntil = apkUntil;
+        this.lat = lat;
+        this.lng = lng;
         this.owner = owner;
     }
 }
