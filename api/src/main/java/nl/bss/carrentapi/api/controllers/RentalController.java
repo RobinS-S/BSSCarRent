@@ -137,6 +137,11 @@ public class RentalController {
             throw new NotAllowedException("This rental has already been delivered.");
         }
 
+        Optional<Rental> broughtBackLateRental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(rental.getCar().getId());
+        if(broughtBackLateRental.isPresent()) {
+            throw new NotAllowedException("Sorry, the previous renter has not brought the car yet back, so you cannot pick it up yet. Please wait and have a coffee.");
+        }
+
         rental.setPickedUpAt(LocalDateTime.now());
         rental = rentalRepository.save(rental);
 

@@ -22,6 +22,11 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     Optional<Rental> findRentalByCarIdAndDeliveredAtIsNullAndIsCancelledFalse(long carId);
 
     /**
+     * Gets rental that hasn't been brought back yet, but has been picked up
+     */
+    Optional<Rental> findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(long carId);
+
+    /**
      * Gets rentals between a datetime-range
      */
     @Query(value = "SELECT * FROM rentals WHERE car_id = :carId AND (reserved_from BETWEEN :start and :end OR reserved_until BETWEEN :start and :end) AND NOT is_cancelled", nativeQuery = true)
