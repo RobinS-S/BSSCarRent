@@ -167,12 +167,15 @@ public class RentalController {
             throw new NotAllowedException("This rental has already been delivered.");
         }
 
+        Car car = rental.getCar();
+        if(rental.getMileageTotal() < car.getKilometersCurrent()) {
+            throw new NotAllowedException("The kilometer count you submitted is lower than the count before you rented it.");
+        }
+
         rental.setDeliveredAt(LocalDateTime.now());
         rental.setMileageTotal(deliverDto.getMileageTotal());
         rental.setDrivingStyleScore(deliverDto.getDrivingStyleScore());
         rental = rentalRepository.save(rental);
-
-        Car car = rental.getCar();
 
         long kmsDriven = rental.getMileageTotal() - car.getKilometersCurrent();
         Double kmsPrice = car.calculateCostForKms(kmsDriven);
