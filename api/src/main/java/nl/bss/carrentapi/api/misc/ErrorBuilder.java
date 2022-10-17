@@ -1,4 +1,4 @@
-package nl.bss.carrentapi.api.exceptions;
+package nl.bss.carrentapi.api.misc;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,7 @@ import java.util.Map;
 public class ErrorBuilder {
     private final Map<String, Object> result = new HashMap<>();
     private final HttpStatus httpStatus;
-    private HttpHeaders httpHeaders;
+    private final HttpHeaders httpHeaders;
 
     public ErrorBuilder(HttpStatus status) {
         httpStatus = status;
@@ -24,25 +24,15 @@ public class ErrorBuilder {
         result.put("error", error);
     }
 
-    public void setErrors(Map<String, Object> errors) {
-        for (String key : errors.keySet()) {
-            this.result.put(key, errors.get(key));
-        }
-    }
-
     public void setError(String key, String value) {
         this.result.put(key, value);
-    }
-
-    public ResponseEntity getResultResponseEntity() {
-        return new ResponseEntity<>(result, httpStatus);
     }
 
     public HttpHeaders getHttpHeaders() {
         return httpHeaders;
     }
 
-    public void setHttpHeaders(HttpHeaders httpHeaders) {
-        this.httpHeaders = httpHeaders;
+    public ResponseEntity getResultResponseEntity() {
+        return new ResponseEntity<>(result, httpHeaders, httpStatus);
     }
 }

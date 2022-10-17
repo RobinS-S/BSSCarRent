@@ -5,6 +5,7 @@ import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.UserRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,11 +29,21 @@ public class AuthServiceImpl implements AuthService {
 
         String[] pair = new String(Base64.decodeBase64(base64AuthHeaderValue.substring(6))).split(":");
         String userName = pair[0];
+        if(pair.length == 1) {
+            throw new UnauthenticatedException("You must provide a password.");
+        }
+        String password = pair[1];
 
-        Optional<User> user = userRepository.findByEmail(userName);
-        if (user.isEmpty()) {
+        Optional<User> foundUser = userRepository.findByEmail(userName);
+        if (foundUser.isEmpty()) {
             throw new UnauthenticatedException();
         }
-        return user.get();
+
+        User user = foundUser.get();
+        if(!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
+            throw new UnauthenticatedException("The password you provided is incorrect.");
+        }
+
+        return user;
     }
 }
