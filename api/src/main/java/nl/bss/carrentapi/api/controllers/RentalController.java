@@ -188,8 +188,17 @@ public class RentalController {
 
         long kmsDriven = rental.getMileageTotal() - car.getKilometersCurrent();
         Double kmsPrice = car.calculateCostForKms(kmsDriven);
-        //TODO: calculate over km costs
-        Invoice invoice = invoiceService.createInvoice(kmsDriven, kmsPrice, rental.getKmPackage(), 0.0, kmsPrice, false, rental.getTenant(), rental.getCarOwner(), rental);
+
+        long overKms = kmsDriven - rental.getKmPackage();
+        Double overKmPackageCosts = 0.0;
+        if(overKms > 0) {
+            overKmPackageCosts = 2 * car.calculateCostForKms(overKms);
+        }
+
+        car.setKilometersCurrent(rental.getMileageTotal());
+        carRepository.save(car);
+
+        Invoice invoice = invoiceService.createInvoice(kmsDriven, kmsPrice, rental.getKmPackage(), overKmPackageCosts, kmsPrice, false, rental.getTenant(), rental.getCarOwner(), rental);
         invoice = invoiceRepository.save(invoice);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(invoice));
