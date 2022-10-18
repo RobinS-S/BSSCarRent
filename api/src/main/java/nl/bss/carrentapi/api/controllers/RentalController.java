@@ -177,7 +177,7 @@ public class RentalController {
         }
 
         Car car = rental.getCar();
-        if(rental.getMileageTotal() < car.getKilometersCurrent()) {
+        if(deliverDto.getMileageTotal() < car.getKilometersCurrent()) {
             throw new NotAllowedException("The kilometer count you submitted is lower than the count before you rented it.");
         }
 
