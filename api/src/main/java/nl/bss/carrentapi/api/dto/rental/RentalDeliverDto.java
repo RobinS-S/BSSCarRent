@@ -14,4 +14,10 @@ public class RentalDeliverDto {
 
     @NotNull
     private Double drivingStyleScore;
+
+    @NotNull
+    private Double lat;
+
+    @NotNull
+    private Double lng;
 }

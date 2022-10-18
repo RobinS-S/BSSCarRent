@@ -22,7 +22,7 @@ public class CarUpdateDto {
     private String color;
 
     @Min(value = 1)
-    private int kilometersCurrent;
+    private long kilometersCurrent;
 
     @Min(value = 0)
     private Double pricePerKilometer;

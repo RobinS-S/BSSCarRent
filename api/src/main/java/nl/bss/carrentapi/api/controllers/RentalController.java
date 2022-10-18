@@ -196,6 +196,9 @@ public class RentalController {
         }
 
         car.setKilometersCurrent(rental.getMileageTotal());
+        car.setLat(deliverDto.getLat());
+        car.setLng(deliverDto.getLng());
+
         carRepository.save(car);
 
         Invoice invoice = invoiceService.createInvoice(kmsDriven, kmsPrice, rental.getKmPackage(), overKmPackageCosts, kmsPrice, false, rental.getTenant(), rental.getCarOwner(), rental);
