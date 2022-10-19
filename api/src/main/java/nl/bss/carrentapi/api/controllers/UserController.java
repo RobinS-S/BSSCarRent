@@ -5,7 +5,9 @@ import nl.bss.carrentapi.api.dto.car.CarDto;
 import nl.bss.carrentapi.api.dto.user.UserDto;
 import nl.bss.carrentapi.api.dto.user.UserRegisterDto;
 import nl.bss.carrentapi.api.dto.user.UserUpdateDto;
+import nl.bss.carrentapi.api.exceptions.ConflictException;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
+import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.User;
@@ -47,14 +49,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        UserDto userDto = dtoMapper.convertToDto(user.get());
-
-        return ResponseEntity.ok(userDto);
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("That user was not found."));
+        return ResponseEntity.ok(dtoMapper.convertToDto(user));
     }
 
     @GetMapping("/{id}/cars")
@@ -69,7 +65,7 @@ public class UserController {
     public ResponseEntity<UserDto> update(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @Valid @RequestBody UserUpdateDto updateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
         if (!id.equals(user.getId())) {
-            throw new NotAllowedException();
+            throw new NotAllowedException("You're not allowed to update this User, because you're logged in under another User.");
         }
 
         modelMapper.map(updateDto, user);
@@ -81,7 +77,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserRegisterDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            throw new ConflictException("This email is already used for an account. Please log in.");
         }
 
         User user = userService.createUser(userDto.getEmail(), userDto.getPassword(), userDto.getFirstName(), userDto.getInfix(), userDto.getLastName(), userDto.getPhoneInternationalCode(), userDto.getPhoneNumber(), userDto.getBirthDate());
