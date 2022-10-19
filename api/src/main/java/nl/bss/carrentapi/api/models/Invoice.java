@@ -16,6 +16,9 @@ public class Invoice {
     private long id;
 
     @Column
+    private Double initialCost;
+
+    @Column
     private long mileageTotal;
 
     @Column
@@ -25,10 +28,13 @@ public class Invoice {
     private long kmPackage;
 
     @Column
-    private Double overKmPackageCosts;
+    private Double totalPrice;
 
     @Column
-    private Double totalPrice;
+    private Double totalHourPrice;
+
+    @Column
+    private Double totalHoursUsed;
 
     @Column
     private Boolean isPaid;
@@ -44,12 +50,14 @@ public class Invoice {
     @OneToOne
     private Rental rental;
 
-    public Invoice(long mileageTotal, Double mileageCosts, long kmPackage, Double overKmPackageCosts, Double totalPrice, Boolean isPaid, User renter, User owner, Rental rental) {
+    public Invoice(long mileageTotal, Double initialCost, Double mileageCosts, long kmPackage, Double totalHourPrice, Double totalHoursUsed, Double totalPrice, Boolean isPaid, User renter, User owner, Rental rental) {
         this.mileageTotal = mileageTotal;
+        this.initialCost = initialCost;
         this.mileageCosts = mileageCosts;
         this.kmPackage = kmPackage;
-        this.overKmPackageCosts = overKmPackageCosts;
+        this.totalHoursUsed = totalHoursUsed;
         this.totalPrice = totalPrice;
+        this.totalHourPrice = totalHourPrice;
         this.isPaid = isPaid;
         this.renter = renter;
         this.owner = owner;
