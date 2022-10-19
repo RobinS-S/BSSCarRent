@@ -7,6 +7,7 @@ import nl.bss.carrentapi.api.interfaces.CostCalculable;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Table(name = "cars", schema = "PUBLIC")
@@ -53,6 +54,9 @@ public abstract class Car implements CostCalculable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "car")
+    private Set<CarImage> images;
 
     @Column
     private CombustionFuelType fuelType;
