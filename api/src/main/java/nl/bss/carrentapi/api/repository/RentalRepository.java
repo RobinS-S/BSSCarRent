@@ -29,8 +29,8 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     /**
      * Gets rentals between a datetime-range
      */
-    @Query(value = "SELECT * FROM rentals WHERE car_id = :carId AND (reserved_from BETWEEN :start and :end OR reserved_until BETWEEN :start and :end) AND NOT is_cancelled", nativeQuery = true)
-    List<Rental> findRentalsByCarIdBetween(@Param("carId") long carId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    @Query(value = "SELECT * FROM rentals WHERE car_id = :carId AND (reserved_from BETWEEN :start and :end OR reserved_until BETWEEN :start and :end) AND NOT is_cancelled AND delivered_at IS NULL", nativeQuery = true)
+    Optional<Rental> findBlockingRentalBetween(@Param("carId") long carId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     /**
      * Gets rental by a tenant id that are still open

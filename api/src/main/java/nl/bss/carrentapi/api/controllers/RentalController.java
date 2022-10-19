@@ -24,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -99,7 +100,8 @@ public class RentalController {
             throw new NotAllowedException("You can't create a Rental in the past!");
         }
 
-        if (!rentalRepository.findRentalsByCarIdBetween(car.getId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil()).isEmpty()) {
+        Optional<Rental> blockedByRental = rentalRepository.findBlockingRentalBetween(car.getId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil());
+        if (!blockedByRental.isEmpty()) {
             throw new NotAllowedException("This car has already been booked between these times.");
         }
 
@@ -187,7 +189,7 @@ public class RentalController {
         rental = rentalRepository.save(rental);
 
         long kmsDriven = rental.getMileageTotal() - car.getKilometersCurrent();
-        Double kmsPrice = car.calculateCostForKms(kmsDriven);
+        Double mileageCost = car.calculateCostForKms(kmsDriven);
 
         long overKms = kmsDriven - rental.getKmPackage();
         Double overKmPackageCosts = 0.0;
@@ -201,7 +203,12 @@ public class RentalController {
 
         carRepository.save(car);
 
-        Invoice invoice = invoiceService.createInvoice(kmsDriven, kmsPrice, rental.getKmPackage(), overKmPackageCosts, kmsPrice, false, rental.getTenant(), rental.getCarOwner(), rental);
+        Double hoursUsed = Double.valueOf(ChronoUnit.SECONDS.between(rental.getReservedFrom(), rental.getDeliveredAt())) / 3600;
+        Double totalHourCost = hoursUsed * car.getPricePerHour();
+
+        Double totalCosts = car.getInitialCost() + totalHourCost + mileageCost + overKmPackageCosts;
+
+        Invoice invoice = invoiceService.createInvoice(kmsDriven, car.getInitialCost(), mileageCost, rental.getKmPackage(), overKmPackageCosts, totalHourCost, hoursUsed, totalCosts, false, rental.getTenant(), rental.getCarOwner(), rental);
         invoice = invoiceRepository.save(invoice);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(invoice));
