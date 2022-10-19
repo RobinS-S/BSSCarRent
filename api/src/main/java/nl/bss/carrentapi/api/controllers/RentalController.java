@@ -243,7 +243,12 @@ public class RentalController {
             throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
         }
 
-        rentalRepository.delete(rental);
+        if (rental.isCancelled()) {
+            throw new NotAllowedException("This rental has already been cancelled.");
+        }
+
+        rental.setCancelled(true);
+        rentalRepository.save(rental);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
