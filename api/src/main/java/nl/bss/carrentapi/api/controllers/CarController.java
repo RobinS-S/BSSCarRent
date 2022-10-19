@@ -5,17 +5,22 @@ import nl.bss.carrentapi.api.dto.car.CarDto;
 import nl.bss.carrentapi.api.dto.car.CarUpdateDto;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
+import nl.bss.carrentapi.api.misc.ImageUtil;
 import nl.bss.carrentapi.api.models.*;
+import nl.bss.carrentapi.api.repository.CarImageRepository;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import nl.bss.carrentapi.api.services.interfaces.CarService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +36,83 @@ public class CarController {
     private final CarRepository carRepository;
     private final CarService carService;
     private final AuthService authService;
+    private final CarImageRepository carImageRepository;
+
+    @GetMapping("/{id}/images")
+    @ResponseBody
+    public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
+        Optional<Car> foundCar = carRepository.findById(id);
+        if (foundCar.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<Long> ids = carImageRepository.findIDsByCarId(id);
+
+        return ResponseEntity.ok(ids);
+    }
+
+    @GetMapping("/{id}/image/{imageId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> findImage(@PathVariable Long id, @PathVariable Long imageId) {
+        Optional<CarImage> foundImage = carImageRepository.findByIdAndCarId(imageId, id);
+        if (foundImage.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        CarImage image = foundImage.get();
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf(image.getType())).body(ImageUtil.decompressImage(image.getData()));
+    }
+
+    @DeleteMapping("/{id}/image/{imageId}")
+    @ResponseBody
+    public ResponseEntity removeImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @PathVariable Long imageId) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
+
+        Optional<Car> foundCar = carRepository.findById(id);
+        if (foundCar.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<CarImage> foundImage = carImageRepository.findByIdAndCarId(imageId, id);
+        if (foundImage.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        CarImage image = foundImage.get();
+
+        Car car = foundCar.get();
+        if (!car.getOwner().equals(user)) {
+            throw new NotAllowedException("This is not your car, so you cannot change its images.");
+        }
+
+        carImageRepository.delete(image);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/{id}/images")
+    public ResponseEntity<Long> uploadImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestParam("image") MultipartFile file) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
+
+        Optional<Car> foundCar = carRepository.findById(id);
+        if (foundCar.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Car car = foundCar.get();
+        if (!car.getOwner().equals(user)) {
+            throw new NotAllowedException("This is not your car, so you cannot change its images.");
+        }
+
+        try {
+            CarImage image = new CarImage(file.getContentType());
+            image.setData(ImageUtil.compressImage(file.getBytes()));
+            image.car = car;
+            image = carImageRepository.save(image);
+
+            return ResponseEntity.ok(image.getId());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CarDto> getCar(@PathVariable Long id) {
