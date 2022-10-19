@@ -34,12 +34,7 @@ public class AuthServiceImpl implements AuthService {
         }
         String password = pair[1];
 
-        Optional<User> foundUser = userRepository.findByEmail(userName);
-        if (foundUser.isEmpty()) {
-            throw new UnauthenticatedException();
-        }
-
-        User user = foundUser.get();
+        User user = userRepository.findByEmail(userName).orElseThrow(() -> new UnauthenticatedException("User not found."));
         if(!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
             throw new UnauthenticatedException("The password you provided is incorrect.");
         }

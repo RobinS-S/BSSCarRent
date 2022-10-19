@@ -3,6 +3,7 @@ package nl.bss.carrentapi.api.controllers;
 import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.dto.InvoiceDto;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
+import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.Invoice;
 import nl.bss.carrentapi.api.models.User;
@@ -49,12 +50,7 @@ public class InvoiceController {
     @PostMapping("/{id}/pay")
     public ResponseEntity<InvoiceDto> create(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Optional<Invoice> foundInvoice = invoiceRepository.findById(id);
-        if (foundInvoice.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        Invoice invoice = foundInvoice.get();
+        Invoice invoice = invoiceRepository.findById(id).orElseThrow(() -> new NotFoundException("This invoice was not found."));
 
         if (invoice.getRenter() != user) {
             throw new NotAllowedException("This is not your invoice to pay.");

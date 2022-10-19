@@ -3,7 +3,9 @@ package nl.bss.carrentapi.api.controllers;
 import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.dto.car.CarDto;
 import nl.bss.carrentapi.api.dto.car.CarUpdateDto;
+import nl.bss.carrentapi.api.exceptions.BadRequestException;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
+import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.misc.ImageUtil;
 import nl.bss.carrentapi.api.models.*;
@@ -41,10 +43,7 @@ public class CarController {
     @GetMapping("/{id}/images")
     @ResponseBody
     public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
-        Optional<Car> foundCar = carRepository.findById(id);
-        if (foundCar.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        carRepository.findById(id).orElseThrow(() -> new NotFoundException("That car was not found."));
         List<Long> ids = carImageRepository.findIDsByCarId(id);
 
         return ResponseEntity.ok(ids);
@@ -53,12 +52,7 @@ public class CarController {
     @GetMapping("/{id}/image/{imageId}")
     @ResponseBody
     public ResponseEntity<byte[]> findImage(@PathVariable Long id, @PathVariable Long imageId) {
-        Optional<CarImage> foundImage = carImageRepository.findByIdAndCarId(imageId, id);
-        if (foundImage.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        CarImage image = foundImage.get();
+        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf(image.getType())).body(ImageUtil.decompressImage(image.getData()));
     }
 
@@ -67,18 +61,9 @@ public class CarController {
     public ResponseEntity removeImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @PathVariable Long imageId) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        Optional<Car> foundCar = carRepository.findById(id);
-        if (foundCar.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
+        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
 
-        Optional<CarImage> foundImage = carImageRepository.findByIdAndCarId(imageId, id);
-        if (foundImage.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        CarImage image = foundImage.get();
-
-        Car car = foundCar.get();
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its images.");
         }
@@ -92,12 +77,7 @@ public class CarController {
     public ResponseEntity<Long> uploadImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestParam("image") MultipartFile file) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        Optional<Car> foundCar = carRepository.findById(id);
-        if (foundCar.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Car car = foundCar.get();
+        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its images.");
         }
@@ -108,7 +88,7 @@ public class CarController {
             image.car = car;
             image = carImageRepository.save(image);
 
-            return ResponseEntity.ok(image.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -116,12 +96,9 @@ public class CarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CarDto> getCar(@PathVariable Long id) {
-        Optional<Car> car = carRepository.findById(id);
-        if (car.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
 
-        return ResponseEntity.ok(dtoMapper.convertToDto(car.get()));
+        return ResponseEntity.ok(dtoMapper.convertToDto(car));
     }
 
     @GetMapping
@@ -153,7 +130,7 @@ public class CarController {
                 break;
             case COMBUSTION:
                 if (carDto.getFuelType() == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+                    throw new BadRequestException("The fuel type was not set, but it needs to be for combustion cars.");
                 }
                 car = carService.createCombustionCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getLat(), carDto.getLng(), carDto.getFuelType(), user);
                 break;
@@ -163,19 +140,14 @@ public class CarController {
         }
         car = carRepository.save(car);
 
-        return ResponseEntity.ok(dtoMapper.convertToDto(car));
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.convertToDto(car));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CarDto> update(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @Valid @RequestBody CarUpdateDto updateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        Optional<Car> foundCar = carRepository.findById(id);
-        if (foundCar.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        Car car = foundCar.get();
+        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
 
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its details.");

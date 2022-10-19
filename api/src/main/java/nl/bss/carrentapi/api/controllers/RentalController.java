@@ -7,6 +7,7 @@ import nl.bss.carrentapi.api.dto.rental.RentalCreateDto;
 import nl.bss.carrentapi.api.dto.rental.RentalDeliverDto;
 import nl.bss.carrentapi.api.dto.rental.RentalPeriodDto;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
+import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.Invoice;
@@ -84,14 +85,9 @@ public class RentalController {
     @PostMapping
     public ResponseEntity<RentalDto> createRental(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody RentalCreateDto rentalCreateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Optional<Car> foundCar = carRepository.findById(rentalCreateDto.getCarId());
-        if (foundCar.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        Car car = foundCar.get();
-
+        Car car = carRepository.findById(rentalCreateDto.getCarId()).orElseThrow(() -> new NotFoundException("That car was not found."));
         Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+
         if (existingRentalsForUser.isPresent()) {
             throw new NotAllowedException("You already have a rental that you need to cancel first.");
         }
@@ -115,13 +111,8 @@ public class RentalController {
     @PostMapping("{id}/markPickedUp")
     public ResponseEntity<RentalDto> pickupCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
+        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new NotFoundException("That rental was not found."));
 
-        Optional<Rental> foundRental = rentalRepository.findById(id);
-        if (foundRental.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        Rental rental = foundRental.get();
         if (!LocalDateTime.now().isAfter(rental.getReservedFrom()))
         {
             throw new NotAllowedException("The rental start time hasn't started yet.");
@@ -153,13 +144,7 @@ public class RentalController {
     @PostMapping("{id}/markDelivered")
     public ResponseEntity<InvoiceDto> deliverCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestBody RentalDeliverDto deliverDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Optional<Rental> foundRental = rentalRepository.findById(id);
-        if (foundRental.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        Rental rental = foundRental.get();
+        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new NotFoundException("That rental was not found."));
 
         if (!LocalDateTime.now().isAfter(rental.getReservedFrom()))
         {
@@ -217,13 +202,7 @@ public class RentalController {
     @GetMapping("/current")
     public ResponseEntity<RentalDto> getActiveRentalAsTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Optional<Rental> foundRental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
-        if (foundRental.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        Rental rental = foundRental.get();
+        Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
@@ -231,13 +210,7 @@ public class RentalController {
     @DeleteMapping("/current")
     public ResponseEntity<RentalDto> cancelRental(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Optional<Rental> foundRental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
-        if (foundRental.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        Rental rental = foundRental.get();
+        Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
         if (rental.getReservedFrom().isAfter(LocalDateTime.now())) {
             throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
