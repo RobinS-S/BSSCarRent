@@ -2,20 +2,18 @@ package nl.bss.carrentapi.api.controllers;
 
 import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.dto.InvoiceDto;
-import nl.bss.carrentapi.api.exceptions.NotAllowedException;
-import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.Invoice;
 import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.InvoiceRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
+import nl.bss.carrentapi.api.services.interfaces.InvoiceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,6 +24,7 @@ public class InvoiceController {
     private final DtoMapper dtoMapper;
     private final AuthService authService;
     private final InvoiceRepository invoiceRepository;
+    private final InvoiceService invoiceService;
 
     @GetMapping("/mine")
     public ResponseEntity<List<InvoiceDto>> findByOwnerId(@RequestHeader(name = "Authorization", required = false) String authHeader) {
@@ -50,18 +49,7 @@ public class InvoiceController {
     @PostMapping("/{id}/pay")
     public ResponseEntity<InvoiceDto> create(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-        Invoice invoice = invoiceRepository.findById(id).orElseThrow(() -> new NotFoundException("This invoice was not found."));
-
-        if (invoice.getRenter() != user) {
-            throw new NotAllowedException("This is not your invoice to pay.");
-        }
-
-        if (invoice.getIsPaid()) {
-            throw new NotAllowedException("You can't pay this invoice.");
-        }
-
-        invoice.setIsPaid(true);
-        invoice = invoiceRepository.save(invoice);
+        Invoice invoice = invoiceService.payInvoice(user, id);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(invoice));
     }

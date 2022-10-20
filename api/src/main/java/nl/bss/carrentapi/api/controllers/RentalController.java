@@ -6,28 +6,20 @@ import nl.bss.carrentapi.api.dto.RentalDto;
 import nl.bss.carrentapi.api.dto.rental.RentalCreateDto;
 import nl.bss.carrentapi.api.dto.rental.RentalDeliverDto;
 import nl.bss.carrentapi.api.dto.rental.RentalPeriodDto;
-import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
-import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.Invoice;
 import nl.bss.carrentapi.api.models.Rental;
 import nl.bss.carrentapi.api.models.User;
-import nl.bss.carrentapi.api.repository.CarRepository;
-import nl.bss.carrentapi.api.repository.InvoiceRepository;
 import nl.bss.carrentapi.api.repository.RentalRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
-import nl.bss.carrentapi.api.services.interfaces.InvoiceService;
 import nl.bss.carrentapi.api.services.interfaces.RentalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,11 +29,8 @@ import java.util.stream.Collectors;
 public class RentalController {
     private final DtoMapper dtoMapper;
     private final RentalRepository rentalRepository;
-    private final CarRepository carRepository;
     private final RentalService rentalService;
     private final AuthService authService;
-    private final InvoiceService invoiceService;
-    private final InvoiceRepository invoiceRepository;
 
     @GetMapping("/car/{id}")
     public ResponseEntity<List<RentalDto>> getRentalsForCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
@@ -85,58 +74,15 @@ public class RentalController {
     @PostMapping
     public ResponseEntity<RentalDto> createRental(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody RentalCreateDto rentalCreateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-        Car car = carRepository.findById(rentalCreateDto.getCarId()).orElseThrow(() -> new NotFoundException("That car was not found."));
-        Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
-
-        if (existingRentalsForUser.isPresent()) {
-            throw new NotAllowedException("You already have a rental that you need to cancel first.");
-        }
-
-        if (rentalCreateDto.getReservedFrom().isBefore(LocalDateTime.now()) || rentalCreateDto.getReservedUntil().isBefore(LocalDateTime.now())) {
-            throw new NotAllowedException("You can't create a Rental in the past!");
-        }
-
-        Optional<Rental> blockedByRental = rentalRepository.findBlockingRentalBetween(car.getId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil());
-        if (!blockedByRental.isEmpty()) {
-            throw new NotAllowedException("This car has already been booked between these times.");
-        }
-
-        Rental rental = rentalService.createRental(rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil(), rentalCreateDto.getKmPackage(), user, car);
-        rental = rentalRepository.save(rental);
+        Rental rental = rentalService.createRental(user, rentalCreateDto.getCarId(), rentalCreateDto.getReservedFrom(), rentalCreateDto.getReservedUntil(), rentalCreateDto.getKmPackage());
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
-
     }
 
     @PostMapping("{id}/markPickedUp")
     public ResponseEntity<RentalDto> pickupCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new NotFoundException("That rental was not found."));
-
-        if (!LocalDateTime.now().isAfter(rental.getReservedFrom()))
-        {
-            throw new NotAllowedException("The rental start time hasn't started yet.");
-        }
-
-        if(rental.getTenant() != user) {
-            throw new NotAllowedException("This is not your rental.");
-        }
-
-        if(rental.getPickedUpAt() != null) {
-            throw new NotAllowedException("This rental has already been picked up.");
-        }
-
-        if(rental.getDeliveredAt() != null) {
-            throw new NotAllowedException("This rental has already been delivered.");
-        }
-
-        Optional<Rental> broughtBackLateRental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(rental.getCar().getId());
-        if(broughtBackLateRental.isPresent()) {
-            throw new NotAllowedException("Sorry, the previous renter has not brought the car yet back, so you cannot pick it up yet. Please wait and have a coffee.");
-        }
-
-        rental.setPickedUpAt(LocalDateTime.now());
-        rental = rentalRepository.save(rental);
+        Rental rental = rentalService.pickupCar(id, user);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
@@ -144,51 +90,7 @@ public class RentalController {
     @PostMapping("{id}/markDelivered")
     public ResponseEntity<InvoiceDto> deliverCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestBody RentalDeliverDto deliverDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-        Rental rental = rentalRepository.findById(id).orElseThrow(() -> new NotFoundException("That rental was not found."));
-
-        if (!LocalDateTime.now().isAfter(rental.getReservedFrom()))
-        {
-            throw new NotAllowedException("The rental start time hasn't started yet.");
-        }
-
-        if(rental.getTenant() != user) {
-            throw new NotAllowedException("This is not your rental.");
-        }
-
-        if(rental.getPickedUpAt() == null) {
-            throw new NotAllowedException("This rental has not been picked up yet.");
-        }
-
-        if(rental.getDeliveredAt() != null) {
-            throw new NotAllowedException("This rental has already been delivered.");
-        }
-
-        Car car = rental.getCar();
-        if(deliverDto.getMileageTotal() < car.getKilometersCurrent()) {
-            throw new NotAllowedException("The kilometer count you submitted is lower than the count before you rented it.");
-        }
-
-        rental.setDeliveredAt(LocalDateTime.now());
-        rental.setMileageTotal(deliverDto.getMileageTotal());
-        rental.setDrivingStyleScore(deliverDto.getDrivingStyleScore());
-        rental = rentalRepository.save(rental);
-
-        long kmsDriven = rental.getMileageTotal() - car.getKilometersCurrent();
-        Double mileageCost = car.calculateCostForKms(kmsDriven);
-
-        car.setKilometersCurrent(rental.getMileageTotal());
-        car.setLat(deliverDto.getLat());
-        car.setLng(deliverDto.getLng());
-
-        carRepository.save(car);
-
-        Double hoursUsed = Double.valueOf(ChronoUnit.SECONDS.between(rental.getReservedFrom(), rental.getDeliveredAt())) / 3600;
-        Double totalHourCost = hoursUsed * car.getPricePerHour();
-
-        Double totalCosts = car.getInitialCost() + totalHourCost + mileageCost;
-
-        Invoice invoice = invoiceService.createInvoice(kmsDriven, car.getInitialCost(), mileageCost, rental.getKmPackage(), totalHourCost, hoursUsed, totalCosts, false, rental.getTenant(), rental.getCarOwner(), rental);
-        invoice = invoiceRepository.save(invoice);
+        Invoice invoice = rentalService.deliverCar(id, user, deliverDto.getMileageTotal(), deliverDto.getDrivingStyleScore(), deliverDto.getLat(), deliverDto.getLng());
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(invoice));
     }
@@ -204,18 +106,7 @@ public class RentalController {
     @DeleteMapping("/current")
     public ResponseEntity<RentalDto> cancelRental(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-        Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
-
-        if (rental.getReservedFrom().isAfter(LocalDateTime.now())) {
-            throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
-        }
-
-        if (rental.isCancelled()) {
-            throw new NotAllowedException("This rental has already been cancelled.");
-        }
-
-        rental.setCancelled(true);
-        rentalRepository.save(rental);
+        Rental rental = rentalService.cancelRental(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }

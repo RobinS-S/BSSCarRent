@@ -1,5 +1,6 @@
 package nl.bss.carrentapi.api.services.interfaces;
 
+import nl.bss.carrentapi.api.dto.user.UserUpdateDto;
 import nl.bss.carrentapi.api.models.User;
 
 import java.time.LocalDate;

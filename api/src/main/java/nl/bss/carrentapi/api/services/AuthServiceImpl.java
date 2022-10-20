@@ -1,5 +1,6 @@
 package nl.bss.carrentapi.api.services;
 
+import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.exceptions.UnauthenticatedException;
 import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.UserRepository;
@@ -8,15 +9,10 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
+@AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
-
-    public AuthServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     /**
      * Gets the current user by the value of the Authorization header
