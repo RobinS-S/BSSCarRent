@@ -5,10 +5,11 @@ import nl.bss.carrentapi.api.dto.car.CarDto;
 import nl.bss.carrentapi.api.dto.car.CarUpdateDto;
 import nl.bss.carrentapi.api.exceptions.BadRequestException;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
-import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.misc.ImageUtil;
-import nl.bss.carrentapi.api.models.*;
+import nl.bss.carrentapi.api.models.Car;
+import nl.bss.carrentapi.api.models.CarImage;
+import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.CarImageRepository;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
@@ -24,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,10 +43,8 @@ public class CarController {
     @GetMapping("/{id}/images")
     @ResponseBody
     public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
-        carRepository.findById(id).orElseThrow(() -> new NotFoundException("That car was not found."));
-        List<Long> ids = carImageRepository.findIDsByCarId(id);
-
-        return ResponseEntity.ok(ids);
+        carService.findCar(id);
+        return ResponseEntity.ok(carImageRepository.findIDsByCarId(id));
     }
 
     @GetMapping("/{id}/image/{imageId}")
@@ -60,34 +58,28 @@ public class CarController {
     @ResponseBody
     public ResponseEntity removeImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @PathVariable Long imageId) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
-        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        Car car = carService.findCar(id);
 
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its images.");
         }
 
+        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
         carImageRepository.delete(image);
-
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/{id}/images")
     public ResponseEntity<Long> uploadImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestParam("image") MultipartFile file) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
+        Car car = carService.findCar(id);
 
-        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its images.");
         }
 
         try {
-            CarImage image = new CarImage(file.getContentType());
-            image.setData(ImageUtil.compressImage(file.getBytes()));
-            image.car = car;
-            image = carImageRepository.save(image);
-
+            CarImage image = carService.createCarImage(file.getContentType(), file.getBytes(), car);
             return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -96,7 +88,7 @@ public class CarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CarDto> getCar(@PathVariable Long id) {
-        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
+        Car car = carService.findCar(id);
 
         return ResponseEntity.ok(dtoMapper.convertToDto(car));
     }
@@ -146,8 +138,7 @@ public class CarController {
     @PutMapping("/{id}")
     public ResponseEntity<CarDto> update(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @Valid @RequestBody CarUpdateDto updateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-
-        Car car = carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
+        Car car = carService.findCar(id);
 
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its details.");
