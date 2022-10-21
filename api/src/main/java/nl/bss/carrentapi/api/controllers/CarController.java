@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -80,7 +81,16 @@ public class CarController {
 
         try {
             CarImage image = carService.createCarImage(file.getContentType(), file.getBytes(), car);
-            return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
+            String filetype = image.getType();
+            String[] allowedFileTypes = {"image/jpeg","image/png"};
+            int getArrayIndex = Arrays.asList(allowedFileTypes).indexOf(filetype);
+
+            if (getArrayIndex >= 0) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
+            }
+            else {
+                throw new NotAllowedException("Supported filetypes are .jpg and .png.");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
