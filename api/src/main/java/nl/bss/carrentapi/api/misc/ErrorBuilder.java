@@ -32,7 +32,7 @@ public class ErrorBuilder {
         return httpHeaders;
     }
 
-    public ResponseEntity getResultResponseEntity() {
+    public ResponseEntity<Map<String, Object>> getResultResponseEntity() {
         return new ResponseEntity<>(result, httpHeaders, httpStatus);
     }
 }
