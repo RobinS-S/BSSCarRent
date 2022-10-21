@@ -14,6 +14,7 @@ import nl.bss.carrentapi.api.repository.CarImageRepository;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import nl.bss.carrentapi.api.services.interfaces.CarService;
+import nl.bss.carrentapi.api.misc.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -79,8 +81,14 @@ public class CarController {
         }
 
         try {
-            CarImage image = carService.createCarImage(file.getContentType(), file.getBytes(), car);
-            return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
+            String uploadedFileType = file.getContentType();
+            if (Constants.ALLOWED_MIME_TYPES.indexOf(uploadedFileType) == -1) {
+                throw new NotAllowedException("Invalid content type.");
+            }
+            else {
+                CarImage image = carService.createCarImage(uploadedFileType, file.getBytes(), car);
+                return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
