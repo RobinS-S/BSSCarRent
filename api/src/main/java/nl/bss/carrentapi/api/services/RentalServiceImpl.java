@@ -153,8 +153,8 @@ public class RentalServiceImpl implements RentalService {
         Double hoursUsed = Double.valueOf(ChronoUnit.SECONDS.between(rental.getReservedFrom(), rental.getDeliveredAt())) / 3600;
         Double totalHourCost = hoursUsed * car.getPricePerHour();
 
-        Double totalCosts = car.getInitialCost() + totalHourCost + mileageCost * drivingScore;
-        
+        Double totalCosts = (car.getInitialCost() + totalHourCost + mileageCost) * drivingScore;
+
         Invoice invoice = invoiceService.createInvoice(kmsDriven, car.getInitialCost(), mileageCost, rental.getKmPackage(), totalHourCost, hoursUsed, totalCosts, false, rental.getTenant(), rental.getCarOwner(), rental);
         return invoiceRepository.save(invoice);
     }
