@@ -3,6 +3,7 @@ package nl.bss.carrentapi.api.services;
 import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.exceptions.NotFoundException;
+import nl.bss.carrentapi.api.misc.NumberRounding;
 import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.Invoice;
 import nl.bss.carrentapi.api.models.Rental;
@@ -131,13 +132,27 @@ public class RentalServiceImpl implements RentalService {
             throw new NotAllowedException("The kilometer count you submitted is lower than the count before you rented it.");
         }
 
+        /**
+         * limit drivingscore minimum and maximum
+         */
+        if(drivingScore < 0.8){
+            drivingScore = 0.8;
+        } else if ( drivingScore > 1.2) {
+            drivingScore = 1.2;
+        }
+
         rental.setDeliveredAt(LocalDateTime.now());
         rental.setMileageTotal(mileageTotal);
         rental.setDrivingStyleScore(drivingScore);
         rental = rentalRepository.save(rental);
 
         long kmsDriven = rental.getMileageTotal() - car.getKilometersCurrent();
-        Double mileageCost = car.calculateCostForKms(kmsDriven);
+        Double mileageCost;
+        if (kmsDriven <= rental.getKmPackage()){
+            mileageCost = 0.0;
+        } else {
+            mileageCost = car.calculateCostForKms(kmsDriven - rental.getKmPackage());
+        }
 
         car.setKilometersCurrent(rental.getMileageTotal());
         car.setLat(lat);
@@ -145,10 +160,11 @@ public class RentalServiceImpl implements RentalService {
 
         carRepository.save(car);
 
-        Double hoursUsed = Double.valueOf(ChronoUnit.SECONDS.between(rental.getReservedFrom(), rental.getDeliveredAt())) / 3600;
-        Double totalHourCost = hoursUsed * car.getPricePerHour();
+        Double hoursUsed = NumberRounding.round(Double.valueOf(ChronoUnit.SECONDS.between(rental.getReservedFrom(), rental.getDeliveredAt())) / 3600,2);
+        Double totalHourCost = NumberRounding.round(hoursUsed * car.getPricePerHour(), 2);
 
-        Double totalCosts = car.getInitialCost() + totalHourCost + mileageCost;
+        Double totalCosts = (car.getInitialCost() + totalHourCost + mileageCost) * drivingScore;
+        totalCosts = NumberRounding.round(totalCosts, 2);
 
         Invoice invoice = invoiceService.createInvoice(kmsDriven, car.getInitialCost(), mileageCost, rental.getKmPackage(), totalHourCost, hoursUsed, totalCosts, false, rental.getTenant(), rental.getCarOwner(), rental);
         return invoiceRepository.save(invoice);
