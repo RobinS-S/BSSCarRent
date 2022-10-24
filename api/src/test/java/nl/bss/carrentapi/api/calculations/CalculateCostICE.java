@@ -12,13 +12,12 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CalculateCostICE {
-
     CombustionCar car;
 
     @BeforeEach
     void setUp() {
         car = new CombustionCar("Opel", "Corsa", "Spacegray", "AB-123-C", 10000, 1.0, 15.0, 10.0, LocalDate.now(), LocalDate.now(), 1.0, 1.0, null,
-                new User("test@test.nl", "password", "Julian", "", "Bos", "+31", "6 25354555", LocalDate.now()));
+                new User("test@test.nl", "password", "Julian", "", "Bos", "+31", "625354555", LocalDate.now()));
     }
 
     @Test

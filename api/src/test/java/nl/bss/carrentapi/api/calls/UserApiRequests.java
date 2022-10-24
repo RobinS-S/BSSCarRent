@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ApiRequests {
+class UserApiRequests {
     @Autowired
     private MockMvc mvc;
 
@@ -45,14 +44,19 @@ class ApiRequests {
     public void controllerConstructs() throws Exception {
         assertThat(userController).isNotNull();
     }
+
     @Test
-    public void createUserApi() throws Exception {
-        UserRegisterDto user = new UserRegisterDto("test@test.nl", "password", "Julian", null, "Bos", "+31", "612345678", LocalDate.of(1980, 1, 1));
+    public void registerUser() throws Exception {
+        String firstName = "Julian";
+        String lastName = "Bos";
+        UserRegisterDto user = new UserRegisterDto("test@test.nl", "password", firstName, null, lastName, "+31", "612345678", LocalDate.of(1980, 1, 1));
+
         mvc.perform( post("/api/users")
                 .content(asJsonString(user))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("firstName").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("firstName").value(firstName))
+                .andExpect(MockMvcResultMatchers.jsonPath("lastName").value(lastName))
                 .andExpect(MockMvcResultMatchers.jsonPath("id").exists()); // check if email is not in and "name" equals firstname+infix+lastname
     }
 

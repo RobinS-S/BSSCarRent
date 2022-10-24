@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 class DtoMapperTest {
-
     User user1;
     User user2;
     BatteryElectricCar batteryElectricCar;
@@ -34,7 +33,7 @@ class DtoMapperTest {
 
     @Test
     @DisplayName("License check for batteryElectricCar")
-    void DtoMapbatteryElectricCar() {
+    void DtoMapBatteryElectricCar() {
         ModelMapper modelMapper = new ModelMapper();
         CarDto dto = modelMapper.map(batteryElectricCar, CarDto.class);
         assertEquals("AB-123-C", dto.getLicensePlate() , "Expect license plate to be AB-123-C");
