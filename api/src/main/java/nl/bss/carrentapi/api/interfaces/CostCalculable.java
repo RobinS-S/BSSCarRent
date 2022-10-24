@@ -1,7 +1,7 @@
 package nl.bss.carrentapi.api.interfaces;
 
 public interface CostCalculable {
-    Double calculateMonthlyCost();
+    Double calculateAnnualCost();
 
     Double calculateCostForKms(long kms);
 }
