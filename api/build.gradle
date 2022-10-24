@@ -37,3 +37,12 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+jar {
+	manifest {
+		attributes "Main-Class": "nl.bss.carrentapi.api"
+	}
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
