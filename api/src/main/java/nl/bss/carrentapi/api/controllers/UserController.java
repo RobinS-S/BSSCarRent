@@ -73,6 +73,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(user));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
+        return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(user));
+    }
+
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserRegisterDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
