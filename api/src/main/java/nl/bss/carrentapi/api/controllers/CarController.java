@@ -118,6 +118,13 @@ public class CarController {
         return ResponseEntity.ok(dtoMapper.convertToDto(car));
     }
 
+    @GetMapping("/{id}/tco")
+    public ResponseEntity<Double> getCarTco(@PathVariable Long id) {
+        Car car = carService.findCar(id);
+
+        return ResponseEntity.ok(car.calculateAnnualCost());
+    }
+
     /**
      * Finds all Cars that can be rented.
      */
