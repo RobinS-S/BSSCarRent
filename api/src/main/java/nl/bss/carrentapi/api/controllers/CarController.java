@@ -6,6 +6,7 @@ import nl.bss.carrentapi.api.dto.car.CarUpdateDto;
 import nl.bss.carrentapi.api.exceptions.BadRequestException;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.mappers.DtoMapper;
+import nl.bss.carrentapi.api.misc.Constants;
 import nl.bss.carrentapi.api.misc.ImageUtil;
 import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.CarImage;
@@ -16,7 +17,6 @@ import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.repository.RentalRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import nl.bss.carrentapi.api.services.interfaces.CarService;
-import nl.bss.carrentapi.api.misc.Constants;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -46,6 +45,9 @@ public class CarController {
     private final AuthService authService;
     private final CarImageRepository carImageRepository;
 
+    /**
+     * Gets Image IDs for Car
+     */
     @GetMapping("/{id}/images")
     @ResponseBody
     public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
@@ -53,6 +55,9 @@ public class CarController {
         return ResponseEntity.ok(carImageRepository.findIDsByCarId(id));
     }
 
+    /**
+     * Gets Image for Car
+     */
     @GetMapping("/{id}/image/{imageId}")
     @ResponseBody
     public ResponseEntity<byte[]> findImage(@PathVariable Long id, @PathVariable Long imageId) {
@@ -60,6 +65,9 @@ public class CarController {
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf(image.getType())).body(ImageUtil.decompressImage(image.getData()));
     }
 
+    /**
+     * Deletes Image for Car
+     */
     @DeleteMapping("/{id}/image/{imageId}")
     @ResponseBody
     public ResponseEntity removeImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @PathVariable Long imageId) {
@@ -75,6 +83,9 @@ public class CarController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    /**
+     * Uploads Image for Car
+     */
     @PostMapping("/{id}/images")
     public ResponseEntity<Long> uploadImage(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestParam("image") MultipartFile file) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -88,8 +99,7 @@ public class CarController {
             String uploadedFileType = file.getContentType();
             if (Constants.ALLOWED_MIME_TYPES.indexOf(uploadedFileType) == -1) {
                 throw new NotAllowedException("Invalid content type.");
-            }
-            else {
+            } else {
                 CarImage image = carService.createCarImage(uploadedFileType, file.getBytes(), car);
                 return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
             }
@@ -98,6 +108,9 @@ public class CarController {
         }
     }
 
+    /**
+     * Finds Car by given ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<CarDto> getCar(@PathVariable Long id) {
         Car car = carService.findCar(id);
@@ -105,6 +118,9 @@ public class CarController {
         return ResponseEntity.ok(dtoMapper.convertToDto(car));
     }
 
+    /**
+     * Finds all Cars that can be rented.
+     */
     @GetMapping
     public ResponseEntity<List<CarDto>> getCars() {
         List<Car> cars = carRepository.findAll();
@@ -113,6 +129,9 @@ public class CarController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Finds Cars that are owned by current User.
+     */
     @GetMapping("/mine")
     public ResponseEntity<List<CarDto>> getUserCars(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -123,6 +142,9 @@ public class CarController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Creates Car
+     */
     @PostMapping
     public ResponseEntity<CarDto> create(@RequestHeader(name = "Authorization", required = false) String authHeader, @Valid @RequestBody CarDto carDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -147,6 +169,9 @@ public class CarController {
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.convertToDto(car));
     }
 
+    /**
+     * Updates partial Car info
+     */
     @PutMapping("/{id}")
     public ResponseEntity<CarDto> update(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @Valid @RequestBody CarUpdateDto updateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -161,6 +186,9 @@ public class CarController {
         return ResponseEntity.ok(dtoMapper.convertToDto(car));
     }
 
+    /**
+     * Deletes car
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<CarDto> delete(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -171,7 +199,7 @@ public class CarController {
         }
 
         Optional<Rental> rental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
-        if(rental.isPresent()) {
+        if (rental.isPresent()) {
             throw new NotAllowedException("The car is currently rented out. Please delete your car when it is brought back.");
         }
 

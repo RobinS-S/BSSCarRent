@@ -1,6 +1,5 @@
 package nl.bss.carrentapi.api.handlers;
 
-import nl.bss.carrentapi.api.exceptions.BadRequestException;
 import nl.bss.carrentapi.api.exceptions.ConflictException;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.misc.ErrorBuilder;
@@ -14,9 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ConflictExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     @ResponseBody
-    public ResponseEntity ConflictExceptionHandler(NotAllowedException ex) {
+    public ResponseEntity ConflictExceptionHandler(ConflictException ex) {
         String reason = ex.getMessage();
-        if(reason == null) {
+        if (reason == null) {
             reason = "This is impossible.";
         }
 

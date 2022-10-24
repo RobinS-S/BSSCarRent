@@ -32,6 +32,9 @@ public class RentalController {
     private final RentalService rentalService;
     private final AuthService authService;
 
+    /**
+     * Shows Rentals for a given carID, but only those related to the User
+     */
     @GetMapping("/car/{id}")
     public ResponseEntity<List<RentalDto>> getRentalsForCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -43,6 +46,9 @@ public class RentalController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Gets rental periods that have been reserved
+     */
     @GetMapping("/car/{id}/periods")
     public ResponseEntity<List<RentalPeriodDto>> getRentalPeriodsForCar(@PathVariable Long id) {
         List<Rental> rentals = rentalRepository.findRentalsByCarId(id);
@@ -51,6 +57,9 @@ public class RentalController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Gets rentals where the cars are rented by the logged-in User
+     */
     @GetMapping("/owned")
     public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -61,6 +70,9 @@ public class RentalController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Gets rentals where the cars are owned by the logged-in User
+     */
     @GetMapping("/mine")
     public ResponseEntity<List<RentalDto>> getRentalsForCarOwner(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -71,6 +83,9 @@ public class RentalController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Creates Rental
+     */
     @PostMapping
     public ResponseEntity<RentalDto> createRental(@RequestHeader(name = "Authorization", required = false) String authHeader, @RequestBody RentalCreateDto rentalCreateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -79,6 +94,9 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
 
+    /**
+     * Marks Rental as picked up.
+     */
     @PostMapping("{id}/markPickedUp")
     public ResponseEntity<RentalDto> pickupCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -87,6 +105,9 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
 
+    /**
+     * Marks Rental as delivered, generates Invoice
+     */
     @PostMapping("{id}/markDelivered")
     public ResponseEntity<InvoiceDto> deliverCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @RequestBody RentalDeliverDto deliverDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -95,6 +116,9 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(invoice));
     }
 
+    /**
+     * Gets active Rental as renter
+     */
     @GetMapping("/current")
     public ResponseEntity<RentalDto> getActiveRentalAsTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -103,6 +127,9 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }
 
+    /**
+     * Cancels Rental
+     */
     @DeleteMapping("/current")
     public ResponseEntity<RentalDto> cancelRental(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);

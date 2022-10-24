@@ -5,32 +5,42 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public class ImageUtil {
+    /**
+     * Compresses images.
+     *
+     * @param data
+     * @return
+     */
     public static byte[] compressImage(byte[] data) {
-    Deflater deflater = new Deflater();
-    deflater.setLevel(Deflater.BEST_COMPRESSION);
-    deflater.setInput(data);
-    deflater.finish();
+        Deflater deflater = new Deflater();
+        deflater.setLevel(Deflater.BEST_COMPRESSION);
+        deflater.setInput(data);
+        deflater.finish();
 
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-    byte[] tmp = new byte[4*1024];
-    while (!deflater.finished()) {
-        int size = deflater.deflate(tmp);
-        outputStream.write(tmp, 0, size);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] tmp = new byte[4 * 1024];
+        while (!deflater.finished()) {
+            int size = deflater.deflate(tmp);
+            outputStream.write(tmp, 0, size);
+        }
+        try {
+            outputStream.close();
+        } catch (Exception ignored) {
+        }
+        return outputStream.toByteArray();
     }
-    try {
-        outputStream.close();
-    } catch (Exception ignored) {
-    }
-    return outputStream.toByteArray();
-}
 
-
-
+    /**
+     * Decompresses images.
+     *
+     * @param data
+     * @return
+     */
     public static byte[] decompressImage(byte[] data) {
         Inflater inflater = new Inflater();
         inflater.setInput(data);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-        byte[] tmp = new byte[4*1024];
+        byte[] tmp = new byte[4 * 1024];
         try {
             while (!inflater.finished()) {
                 int count = inflater.inflate(tmp);

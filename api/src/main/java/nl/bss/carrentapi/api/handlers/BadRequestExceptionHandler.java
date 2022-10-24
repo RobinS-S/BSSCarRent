@@ -1,7 +1,6 @@
 package nl.bss.carrentapi.api.handlers;
 
 import nl.bss.carrentapi.api.exceptions.BadRequestException;
-import nl.bss.carrentapi.api.exceptions.NotAllowedException;
 import nl.bss.carrentapi.api.misc.ErrorBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +12,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class BadRequestExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     @ResponseBody
-    public ResponseEntity BadRequestExceptionHandler(NotAllowedException ex) {
+    public ResponseEntity BadRequestExceptionHandler(BadRequestException ex) {
         String reason = ex.getMessage();
-        if(reason == null) {
+        if (reason == null) {
             reason = "Bad input.";
         }
 

@@ -46,12 +46,18 @@ public class UserController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Gets User by ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("That user was not found."));
         return ResponseEntity.ok(dtoMapper.convertToDto(user));
     }
 
+    /**
+     * Gets Cars that are owned by given User.
+     */
     @GetMapping("/{id}/cars")
     public ResponseEntity<List<CarDto>> getUserCars(@PathVariable Long id) {
         List<Car> cars = carRepository.findByOwnerId(id);
@@ -60,6 +66,9 @@ public class UserController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Updates the given User.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @Valid @RequestBody UserUpdateDto updateDto) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -73,12 +82,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(user));
     }
 
-    @PostMapping("/login")
+    /**
+     * Fails if user isn't logged in correctly, returns active User
+     */
+    @PostMapping("/profile")
     public ResponseEntity<UserDto> login(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(user));
     }
 
+    /**
+     * Creates User
+     */
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserRegisterDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {

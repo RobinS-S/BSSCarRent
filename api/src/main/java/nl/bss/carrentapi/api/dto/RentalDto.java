@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class RentalDto {
-
     private long id;
     private LocalDateTime reservedFrom;
     private LocalDateTime reservedUntil;

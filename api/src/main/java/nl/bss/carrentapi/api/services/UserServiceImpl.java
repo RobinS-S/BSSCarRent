@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
 
     /**

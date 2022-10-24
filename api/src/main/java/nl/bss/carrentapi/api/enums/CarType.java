@@ -1,5 +1,8 @@
 package nl.bss.carrentapi.api.enums;
 
+/**
+ * Car types for all vehicles.
+ */
 public enum CarType {
     /**
      * FuelCellCar

@@ -24,6 +24,12 @@ public class ErrorBuilder {
         result.put("error", error);
     }
 
+    /**
+     * Sets 'key' in the 'error' object of the resulting object.
+     *
+     * @param key
+     * @param value
+     */
     public void setError(String key, String value) {
         this.result.put(key, value);
     }
@@ -32,6 +38,11 @@ public class ErrorBuilder {
         return httpHeaders;
     }
 
+    /**
+     * Returns ResponseEntity that has been built up
+     *
+     * @return
+     */
     public ResponseEntity<Map<String, Object>> getResultResponseEntity() {
         return new ResponseEntity<>(result, httpHeaders, httpStatus);
     }
