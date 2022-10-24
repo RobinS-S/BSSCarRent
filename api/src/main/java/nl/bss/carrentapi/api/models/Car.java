@@ -56,6 +56,9 @@ public abstract class Car implements CostCalculable {
     private User owner;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "car")
+    private Set<Rental> rentals;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "car")
     private Set<CarImage> images;
 
     @Column
