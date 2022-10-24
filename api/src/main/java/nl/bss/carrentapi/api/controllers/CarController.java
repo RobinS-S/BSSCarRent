@@ -9,9 +9,11 @@ import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.misc.ImageUtil;
 import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.CarImage;
+import nl.bss.carrentapi.api.models.Rental;
 import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.CarImageRepository;
 import nl.bss.carrentapi.api.repository.CarRepository;
+import nl.bss.carrentapi.api.repository.RentalRepository;
 import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import nl.bss.carrentapi.api.services.interfaces.CarService;
 import nl.bss.carrentapi.api.misc.Constants;
@@ -37,6 +39,7 @@ import java.util.Arrays;
 public class CarController {
     private final DtoMapper dtoMapper;
     private final ModelMapper modelMapper;
+    private final RentalRepository rentalRepository;
     private final CarRepository carRepository;
     private final CarService carService;
     private final AuthService authService;
@@ -155,5 +158,22 @@ public class CarController {
         modelMapper.map(updateDto, car);
 
         return ResponseEntity.ok(dtoMapper.convertToDto(car));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CarDto> delete(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
+        User user = authService.getCurrentUserByAuthHeader(authHeader);
+        Car car = carService.findCar(id);
+
+        if (!car.getOwner().equals(user)) {
+            throw new NotAllowedException("This is not your car, so you cannot change its details.");
+        }
+
+        Set<Rental> rentals = car.getRentals();
+        rentals.forEach(r -> r.setCar(null));
+        rentalRepository.saveAll(rentals);
+        carRepository.delete(car);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
