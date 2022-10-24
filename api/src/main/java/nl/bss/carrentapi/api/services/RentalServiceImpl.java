@@ -95,7 +95,7 @@ public class RentalServiceImpl implements RentalService {
     public Rental cancelRental(User user) {
         Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
-        if (rental.getReservedFrom().isAfter(LocalDateTime.now())) {
+        if (rental.getReservedFrom().isBefore(LocalDateTime.now())) {
             throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
         }
 
