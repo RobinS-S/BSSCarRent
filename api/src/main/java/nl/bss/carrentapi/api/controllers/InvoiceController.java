@@ -26,6 +26,9 @@ public class InvoiceController {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceService invoiceService;
 
+    /**
+     * Finds invoices where User owned the car
+     */
     @GetMapping("/mine")
     public ResponseEntity<List<InvoiceDto>> findByOwnerId(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -36,6 +39,9 @@ public class InvoiceController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Finds invoices where User rented the car
+     */
     @GetMapping("/owned")
     public ResponseEntity<List<InvoiceDto>> findByRenterId(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
@@ -46,6 +52,9 @@ public class InvoiceController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * Pays an Invoice
+     */
     @PostMapping("/{id}/pay")
     public ResponseEntity<InvoiceDto> create(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);

@@ -14,10 +14,12 @@ public class RentalPeriodDto {
     @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedFrom;
-    
+
     @Future
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedUntil;
 
     private long carId;
+
+    private boolean isCancelled;
 }

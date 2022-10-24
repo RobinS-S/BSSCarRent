@@ -1,7 +1,7 @@
 package nl.bss.carrentapi.api.handlers;
 
-import nl.bss.carrentapi.api.misc.ErrorBuilder;
 import nl.bss.carrentapi.api.exceptions.UnauthenticatedException;
+import nl.bss.carrentapi.api.misc.ErrorBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,7 +14,7 @@ public class UnauthenticatedExceptionHandler {
     @ResponseBody
     public ResponseEntity UnauthorizedExceptionHandler(UnauthenticatedException ex) {
         String reason = ex.getMessage();
-        if(reason == null) {
+        if (reason == null) {
             reason = "You are not authenticated. Use Basic authentication with your e-mail address.";
         }
 

@@ -23,6 +23,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         return new Invoice(mileageTotal, initialCost, mileageCosts, kmPackage, totalHourPrice, totalHoursUsed, totalPrice, isPaid, renter, owner, rental);
     }
 
+    /**
+     * Marks the invoice as paid if the user still has to pay this invoice and he is the one who should pay it.
+     *
+     * @param user
+     * @param invoiceId
+     */
     @Override
     public Invoice payInvoice(User user, long invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new NotFoundException("This invoice was not found."));

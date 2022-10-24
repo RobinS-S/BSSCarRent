@@ -14,7 +14,7 @@ public class NotFoundExceptionHandler {
     @ResponseBody
     public ResponseEntity NotFoundExceptionHandler(NotFoundException ex) {
         String reason = ex.getMessage();
-        if(reason == null) {
+        if (reason == null) {
             reason = "You are not allowed to do that.";
         }
 

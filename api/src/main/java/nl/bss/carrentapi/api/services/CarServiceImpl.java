@@ -9,9 +9,7 @@ import nl.bss.carrentapi.api.repository.CarImageRepository;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.services.interfaces.CarService;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
 @Service
@@ -44,6 +42,13 @@ public class CarServiceImpl implements CarService {
         return new FuelCellCar(brand, model, color, licensePlate, kilometersCurrent, pricePerHour, pricePerKilometer, initialCost, constructed, apkUntil, lat, lng, owner);
     }
 
+    /**
+     * Creates car image for given Car with data and Content-Type.
+     *
+     * @param contentType
+     * @param bytes
+     * @param car
+     */
     @Override
     public CarImage createCarImage(String contentType, byte[] bytes, Car car) {
         CarImage image = new CarImage(contentType);
@@ -53,6 +58,11 @@ public class CarServiceImpl implements CarService {
         return image;
     }
 
+    /**
+     * Finds a Car with given id.
+     *
+     * @param id
+     */
     @Override
     public Car findCar(long id) {
         return carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));

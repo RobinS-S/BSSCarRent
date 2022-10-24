@@ -1,6 +1,5 @@
 package nl.bss.carrentapi.api.services.interfaces;
 
-import nl.bss.carrentapi.api.models.Car;
 import nl.bss.carrentapi.api.models.Invoice;
 import nl.bss.carrentapi.api.models.Rental;
 import nl.bss.carrentapi.api.models.User;

@@ -18,7 +18,7 @@ public class BatteryElectricCar extends Car {
 
     @Override
     public Double calculateAnnualCost() {
-        double defaultKm = 15200.0; //Default kilometers per year. Source: https://www.thinkinsure.ca/insurance-help-centre/average-km-per-year-canada.html#:~:text=According%20to%20the%20NRCan%20Vehicle,you%20drive%20in%20a%20year.
+        double defaultKm = 15200.0; // Default kilometers per year. Source: https://www.thinkinsure.ca/insurance-help-centre/average-km-per-year-canada.html#:~:text=According%20to%20the%20NRCan%20Vehicle,you%20drive%20in%20a%20year.
         double pricePerKm = this.getPricePerKilometer();
         return defaultKm * pricePerKm;
     }
