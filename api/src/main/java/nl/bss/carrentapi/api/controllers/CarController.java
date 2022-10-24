@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.Arrays;
@@ -167,6 +168,11 @@ public class CarController {
 
         if (!car.getOwner().equals(user)) {
             throw new NotAllowedException("This is not your car, so you cannot change its details.");
+        }
+
+        Optional<Rental> rental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
+        if(rental.isPresent()) {
+            throw new NotAllowedException("The car is currently rented out. Please delete your car when it is brought back.");
         }
 
         Set<Rental> rentals = car.getRentals();
