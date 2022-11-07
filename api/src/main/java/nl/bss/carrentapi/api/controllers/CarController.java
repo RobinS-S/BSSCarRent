@@ -197,7 +197,7 @@ public class CarController {
      * Deletes car
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<CarDto> delete(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
+    public ResponseEntity<CarDto> delete(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id, @PathVariable Long imageId) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
         Car car = carService.findCar(id);
 
@@ -214,6 +214,9 @@ public class CarController {
         rentals.forEach(r -> r.setCar(null));
         rentalRepository.saveAll(rentals);
         carRepository.delete(car);
+
+        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        carImageRepository.delete(image);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
