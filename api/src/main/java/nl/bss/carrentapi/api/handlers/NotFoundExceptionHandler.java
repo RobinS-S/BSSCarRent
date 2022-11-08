@@ -18,7 +18,7 @@ public class NotFoundExceptionHandler {
             reason = "You are not allowed to do that.";
         }
 
-        ErrorBuilder error = new ErrorBuilder(reason, HttpStatus.FORBIDDEN);
+        ErrorBuilder error = new ErrorBuilder(reason, HttpStatus.NOT_FOUND);
         return error.getResultResponseEntity();
     }
 }
