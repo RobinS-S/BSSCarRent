@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.exceptions.UnauthenticatedException;
 import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.UserRepository;
-import nl.bss.carrentapi.api.services.interfaces.AuthService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class AuthService {
     private final UserRepository userRepository;
 
     /**
@@ -20,7 +19,6 @@ public class AuthServiceImpl implements AuthService {
      * @param base64AuthHeaderValue
      * @return
      */
-    @Override
     public User getCurrentUserByAuthHeader(String base64AuthHeaderValue) {
         if (base64AuthHeaderValue == null || base64AuthHeaderValue.length() <= 6) {
             throw new UnauthenticatedException();
