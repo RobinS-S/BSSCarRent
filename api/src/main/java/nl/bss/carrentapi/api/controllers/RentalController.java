@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class RentalController {
     private final DtoMapper dtoMapper;
-    private final RentalRepository rentalRepository;
     private final RentalService rentalService;
     private final AuthService authService;
 
@@ -39,7 +38,7 @@ public class RentalController {
     public ResponseEntity<List<RentalDto>> getRentalsForCar(@RequestHeader(name = "Authorization", required = false) String authHeader, @PathVariable Long id) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Rental> rentals = rentalRepository.findRentalsByCarId(id);
+        List<Rental> rentals = rentalService.getRentals(id);
         return ResponseEntity.ok(rentals.stream()
                 .filter(c -> c.getTenant() == user || c.getCarOwner() == user) // Only show rentals the user is related to
                 .map(dtoMapper::convertToDto)
@@ -51,7 +50,7 @@ public class RentalController {
      */
     @GetMapping("/car/{id}/periods")
     public ResponseEntity<List<RentalPeriodDto>> getRentalPeriodsForCar(@PathVariable Long id) {
-        List<Rental> rentals = rentalRepository.findRentalsByCarId(id);
+        List<Rental> rentals = rentalService.getRentals(id);
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToRentalPeriodDto)
                 .collect(Collectors.toList()));
@@ -64,7 +63,7 @@ public class RentalController {
     public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Rental> rentals = rentalRepository.findRentalsByCarOwnerId(user.getId());
+        List<Rental> rentals = rentalService.getRenatalsByCarOwner(user);
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
@@ -77,7 +76,7 @@ public class RentalController {
     public ResponseEntity<List<RentalDto>> getRentalsForCarOwner(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Rental> rentals = rentalRepository.findRentalsByTenantId(user.getId());
+        List<Rental> rentals = rentalService.getRenatalsByCarOwner(user);
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
@@ -122,7 +121,7 @@ public class RentalController {
     @GetMapping("/current")
     public ResponseEntity<RentalDto> getActiveRentalAsTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
-        Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
+        Rental rental = rentalService.findRentalAvailable(user).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(rental));
     }

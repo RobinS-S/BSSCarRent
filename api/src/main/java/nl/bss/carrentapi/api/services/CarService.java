@@ -7,15 +7,21 @@ import nl.bss.carrentapi.api.misc.ImageUtil;
 import nl.bss.carrentapi.api.models.*;
 import nl.bss.carrentapi.api.repository.CarImageRepository;
 import nl.bss.carrentapi.api.repository.CarRepository;
+import nl.bss.carrentapi.api.repository.RentalRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
 public class CarService {
     private final CarImageRepository carImageRepository;
     private final CarRepository carRepository;
+    private final RentalRepository rentalRepository;
 
     /**
      * Creates a new combustion car along with car info and fuel type. Still needs to be saved in order to persist.
@@ -60,5 +66,45 @@ public class CarService {
      */
     public Car findCar(long id) {
         return carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
+    }
+
+    public Optional<Rental> findRental(Car car) {
+        return rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
+    }
+
+    public void saveAll(Set<Rental> rentals) {
+        rentalRepository.saveAll(rentals);
+    }
+
+    public List<Car> listCars() {
+        return carRepository.findAll();
+    }
+
+    public void saveCar(Car car) {
+        carRepository.save(car);
+    }
+
+    public void deleteCar(Car car) {
+        carRepository.delete(car);
+    }
+
+    public ResponseEntity responseImage(Long id) {
+        return ResponseEntity.ok(carImageRepository.findIDsByCarId(id));
+    }
+
+    public Optional<CarImage> carImage(long imageId, long id) {
+        return carImageRepository.findByIdAndCarId(imageId, id);
+    }
+
+    public void deleteImage(CarImage image) {
+        carImageRepository.delete(image);
+    }
+
+    public List<Long> getImageIds(Car car) {
+        return carImageRepository.findIDsByCarId(car.getId());
+    }
+
+    public void deleteImages(List<Long> ids) {
+        carImageRepository.deleteByCarIdAndIdIn(ids);
     }
 }
