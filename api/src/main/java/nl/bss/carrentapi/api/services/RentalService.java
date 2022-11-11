@@ -11,9 +11,6 @@ import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.CarRepository;
 import nl.bss.carrentapi.api.repository.InvoiceRepository;
 import nl.bss.carrentapi.api.repository.RentalRepository;
-import nl.bss.carrentapi.api.services.interfaces.CarService;
-import nl.bss.carrentapi.api.services.interfaces.InvoiceService;
-import nl.bss.carrentapi.api.services.interfaces.RentalService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class RentalServiceImpl implements RentalService {
+public class RentalService {
     private final RentalRepository rentalRepository;
     private final InvoiceRepository invoiceRepository;
     private final InvoiceService invoiceService;
@@ -38,7 +35,6 @@ public class RentalServiceImpl implements RentalService {
      * @param reservedUntil
      * @param kmPackage
      */
-    @Override
     public Rental createRental(User user, long carId, LocalDateTime reservedFrom, LocalDateTime reservedUntil, long kmPackage) {
         Car car = carService.findCar(carId);
         Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
@@ -65,7 +61,6 @@ public class RentalServiceImpl implements RentalService {
      *
      * @param rentalId
      */
-    @Override
     public Rental findRental(long rentalId) {
         return rentalRepository.findById(rentalId).orElseThrow(() -> new NotFoundException("That rental was not found."));
     }
@@ -76,7 +71,6 @@ public class RentalServiceImpl implements RentalService {
      * @param rentalId
      * @param user
      */
-    @Override
     public Rental pickupCar(long rentalId, User user) {
         Rental rental = findRental(rentalId);
 
@@ -110,7 +104,6 @@ public class RentalServiceImpl implements RentalService {
      *
      * @param user
      */
-    @Override
     public Rental cancelRental(User user) {
         Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
@@ -137,7 +130,6 @@ public class RentalServiceImpl implements RentalService {
      * @param lng
      * @return
      */
-    @Override
     public Invoice deliverCar(long rentalId, User user, long mileageTotal, Double drivingScore, Double lat, Double lng) {
         Rental rental = findRental(rentalId);
 
