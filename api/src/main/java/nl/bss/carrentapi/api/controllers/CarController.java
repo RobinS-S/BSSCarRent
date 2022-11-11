@@ -213,6 +213,12 @@ public class CarController {
         Set<Rental> rentals = car.getRentals();
         rentals.forEach(r -> r.setCar(null));
         rentalRepository.saveAll(rentals);
+
+        List<Long> imageIds = carImageRepository.findIDsByCarId(car.getId());
+        if(imageIds.size() > 0) {
+            carImageRepository.deleteByCarIdAndIdIn(imageIds);
+        }
+
         carRepository.delete(car);
 
         return ResponseEntity.status(HttpStatus.OK).build();
