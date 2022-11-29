@@ -47,7 +47,7 @@ public class UserService {
         return false;
     }
 
-    public List<Car> listCars(Long id) {
+    public List<Car> listCarsByOwnerId(Long id) {
         return carRepository.findByOwnerId(id);
     }
 }

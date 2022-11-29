@@ -44,7 +44,7 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
 
-    public List<Invoice> getInvoices(User user) {
+    public List<Invoice> getInvoicesByOwner(User user) {
         return invoiceRepository.findByOwnerId(user.getId());
     }
 }

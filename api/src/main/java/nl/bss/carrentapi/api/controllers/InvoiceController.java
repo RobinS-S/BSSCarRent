@@ -32,7 +32,7 @@ public class InvoiceController {
     public ResponseEntity<List<InvoiceDto>> findByOwnerId(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Invoice> invoices = invoiceService.getInvoices(user);
+        List<Invoice> invoices = invoiceService.getInvoicesByOwner(user);
         return ResponseEntity.ok(invoices.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
@@ -45,7 +45,7 @@ public class InvoiceController {
     public ResponseEntity<List<InvoiceDto>> findByRenterId(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Invoice> invoices = invoiceService.getInvoices(user);
+        List<Invoice> invoices = invoiceService.getInvoicesByOwner(user);
         return ResponseEntity.ok(invoices.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));

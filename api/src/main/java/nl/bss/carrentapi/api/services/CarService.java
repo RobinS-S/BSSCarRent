@@ -68,7 +68,7 @@ public class CarService {
         return carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
     }
 
-    public Optional<Rental> findRental(Car car) {
+    public Optional<Rental> findActiveRentalForCarId(Car car) {
         return rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
     }
 
@@ -88,11 +88,11 @@ public class CarService {
         carRepository.delete(car);
     }
 
-    public ResponseEntity responseImage(Long id) {
-        return ResponseEntity.ok(carImageRepository.findIDsByCarId(id));
+    public List responseImage(Long id) {
+        return carImageRepository.findIDsByCarId(id);
     }
 
-    public Optional<CarImage> carImage(long imageId, long id) {
+    public Optional<CarImage> findCarImage(long imageId, long id) {
         return carImageRepository.findByIdAndCarId(imageId, id);
     }
 

@@ -49,7 +49,7 @@ public class CarController {
     @ResponseBody
     public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
         carService.findCar(id);
-        return carService.responseImage(id);
+        return ResponseEntity.ok(carService.responseImage(id));
     }
 
     /**
@@ -58,7 +58,7 @@ public class CarController {
     @GetMapping("/{id}/image/{imageId}")
     @ResponseBody
     public ResponseEntity<byte[]> findImage(@PathVariable Long id, @PathVariable Long imageId) {
-        CarImage image = carService.carImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        CarImage image = carService.findCarImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf(image.getType())).body(ImageUtil.decompressImage(image.getData()));
     }
 
@@ -75,7 +75,7 @@ public class CarController {
             throw new NotAllowedException("This is not your car, so you cannot change its images.");
         }
 
-        CarImage image = carService.carImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        CarImage image = carService.findCarImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
         carService.deleteImage(image);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -127,7 +127,6 @@ public class CarController {
      */
     @GetMapping
     public ResponseEntity<List<CarDto>> getCars() {
-
         List<Car> cars = carService.listCars();
         return ResponseEntity.ok(cars.stream()
                 .map(dtoMapper::convertToDto)
@@ -203,7 +202,7 @@ public class CarController {
             throw new NotAllowedException("This is not your car, so you cannot change its details.");
         }
 
-        Optional<Rental> rental = carService.findRental(car);
+        Optional<Rental> rental = carService.findActiveRentalForCarId(car);
         if (rental.isPresent()) {
             throw new NotAllowedException("The car is currently rented out. Please delete your car when it is brought back.");
         }

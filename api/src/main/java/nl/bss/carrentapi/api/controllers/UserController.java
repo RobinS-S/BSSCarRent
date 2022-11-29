@@ -58,7 +58,7 @@ public class UserController {
      */
     @GetMapping("/{id}/cars")
     public ResponseEntity<List<CarDto>> getUserCars(@PathVariable Long id) {
-        List<Car> cars = userService.listCars(id);
+        List<Car> cars = userService.listCarsByOwnerId(id);
         return ResponseEntity.ok(cars.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));

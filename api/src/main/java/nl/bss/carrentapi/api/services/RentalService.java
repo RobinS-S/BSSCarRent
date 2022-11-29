@@ -196,15 +196,15 @@ public class RentalService {
         return invoiceRepository.save(invoice);
     }
 
-    public List<Rental> getRentals(Long id) {
+    public List<Rental> getRentalsForCar(Long id) {
         return rentalRepository.findRentalsByCarId(id);
     }
 
-    public List<Rental> getRenatalsByCarOwner(User user) {
+    public List<Rental> getRentalsByCarOwner(User user) {
         return rentalRepository.findRentalsByCarOwnerId(user.getId());
     }
 
-    public Optional<Rental> findRentalAvailable(User user) {
+    public Optional<Rental> findOpenRentalForUserId(User user) {
         return rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
     }
 }
