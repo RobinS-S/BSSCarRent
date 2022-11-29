@@ -3,6 +3,7 @@ package nl.bss.carrentapi.api.services;
 import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.enums.CombustionFuelType;
 import nl.bss.carrentapi.api.exceptions.NotAllowedException;
+import nl.bss.carrentapi.api.exceptions.NotFoundException;
 import nl.bss.carrentapi.api.misc.ImageUtil;
 import nl.bss.carrentapi.api.models.*;
 import nl.bss.carrentapi.api.repository.CarImageRepository;
@@ -59,6 +60,6 @@ public class CarService {
      * @param id
      */
     public Car findCar(long id) {
-        return carRepository.findById(id).orElseThrow(() -> new NotAllowedException("That car was not found."));
+        return carRepository.findById(id).orElseThrow(() -> new NotFoundException("That car was not found."));
     }
 }
