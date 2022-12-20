@@ -48,7 +48,6 @@ public class CarController {
     @GetMapping("/{id}/images")
     @ResponseBody
     public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
-        carService.findCar(id);
         return ResponseEntity.ok(carService.responseImage(id));
     }
 
