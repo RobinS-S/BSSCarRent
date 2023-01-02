@@ -38,20 +38,12 @@ public class RentalService {
      */
     public Rental createRental(User user, long carId, LocalDateTime reservedFrom, LocalDateTime reservedUntil, long kmPackage) {
         Car car = carService.findCar(carId);
-        Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
 
-        if (existingRentalsForUser.isPresent()) {
-            throw new NotAllowedException("You already have a rental that you need to cancel first.");
-        }
+        ensureUserHasNoOpenOrActiveRental(user);
 
-        if (reservedFrom.isBefore(LocalDateTime.now()) || reservedUntil.isBefore(LocalDateTime.now())) {
-            throw new NotAllowedException("You can't create a Rental in the past!");
-        }
+        ensureRentalDateTimesNotInPast(reservedFrom, reservedUntil);
 
-        Optional<Rental> blockedByRental = rentalRepository.findBlockingRentalBetween(car.getId(), reservedFrom, reservedUntil);
-        if (!blockedByRental.isEmpty()) {
-            throw new NotAllowedException("This car has already been booked between these times.");
-        }
+        ensureCarNotBookedBetweenTimes(car, reservedFrom, reservedUntil);
 
         Rental rental = new Rental(reservedFrom, reservedUntil, kmPackage, user, car.getOwner(), car);
         return rentalRepository.save(rental);
@@ -75,26 +67,16 @@ public class RentalService {
     public Rental pickupCar(long rentalId, User user) {
         Rental rental = findRental(rentalId);
 
-        if (!LocalDateTime.now().isAfter(rental.getReservedFrom())) {
-            throw new NotAllowedException("The rental start time hasn't started yet.");
-        }
+        ensureRentalTimeStarted(rental);
 
-        if (rental.getTenant() != user) {
-            throw new NotAllowedException("This is not your rental.");
-        }
+        ensureRentalIsRentedByUser(rental, user);
 
-        if (rental.getPickedUpAt() != null) {
-            throw new NotAllowedException("This rental has already been picked up.");
-        }
+        ensureRentalNotPickedUp(rental);
 
-        if (rental.getDeliveredAt() != null) {
-            throw new NotAllowedException("This rental has already been delivered.");
-        }
+        ensureRentalNotDelivered(rental);
 
         Optional<Rental> broughtBackLateRental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(rental.getCar().getId());
-        if (broughtBackLateRental.isPresent()) {
-            throw new NotAllowedException("Sorry, the previous renter has not brought the car yet back, so you cannot pick it up yet. Please wait and have a coffee.");
-        }
+        ensureRentalBroughtBack(broughtBackLateRental);
 
         rental.setPickedUpAt(LocalDateTime.now());
         return rentalRepository.save(rental);
@@ -108,13 +90,9 @@ public class RentalService {
     public Rental cancelRental(User user) {
         Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
-        if (rental.getReservedFrom().isBefore(LocalDateTime.now())) {
-            throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
-        }
+        ensureRentalHasNotStartedYet(rental);
 
-        if (rental.isCancelled()) {
-            throw new NotAllowedException("This rental has already been cancelled.");
-        }
+        ensureRentalNotCancelled(rental);
 
         rental.setCancelled(true);
         return rentalRepository.save(rental);
@@ -134,26 +112,16 @@ public class RentalService {
     public Invoice deliverCar(long rentalId, User user, long mileageTotal, Double drivingScore, Double lat, Double lng) {
         Rental rental = findRental(rentalId);
 
-        if (!LocalDateTime.now().isAfter(rental.getReservedFrom())) {
-            throw new NotAllowedException("The rental start time hasn't started yet.");
-        }
+        ensureRentalTimeStarted(rental);
 
-        if (rental.getTenant() != user) {
-            throw new NotAllowedException("This is not your rental.");
-        }
+        ensureRentalIsRentedByUser(rental, user);
 
-        if (rental.getPickedUpAt() == null) {
-            throw new NotAllowedException("This rental has not been picked up yet.");
-        }
+        ensureRentalPickedUp(rental);
 
-        if (rental.getDeliveredAt() != null) {
-            throw new NotAllowedException("This rental has already been delivered.");
-        }
+        ensureRentalNotDelivered(rental);
 
         Car car = rental.getCar();
-        if (mileageTotal < car.getKilometersCurrent()) {
-            throw new NotAllowedException("The kilometer count you submitted is lower than the count before you rented it.");
-        }
+        ensureKilometerCountHigherThanPrevious(mileageTotal, car);
 
         /**
          * limit drivingscore minimum and maximum
@@ -196,6 +164,7 @@ public class RentalService {
         return invoiceRepository.save(invoice);
     }
 
+    
     public List<Rental> getRentalsForCar(Long id) {
         return rentalRepository.findRentalsByCarId(id);
     }
@@ -206,5 +175,79 @@ public class RentalService {
 
     public Optional<Rental> findOpenRentalForUserId(User user) {
         return rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+    }
+    
+    public void ensureUserHasNoOpenOrActiveRental(User user) {
+        Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+        if (existingRentalsForUser.isPresent()) {
+            throw new NotAllowedException("You already have a rental that you need to cancel first.");
+        }
+    }
+
+    public void ensureRentalDateTimesNotInPast(LocalDateTime reservedFrom, LocalDateTime reservedUntil) {
+        if (reservedFrom.isBefore(LocalDateTime.now()) || reservedUntil.isBefore(LocalDateTime.now())) {
+            throw new NotAllowedException("You can't create a Rental in the past!");
+        }
+    }
+
+    public void ensureCarNotBookedBetweenTimes(Car car, LocalDateTime reservedFrom, LocalDateTime reservedUntil) {
+        Optional<Rental> blockedByRental = rentalRepository.findBlockingRentalBetween(car.getId(), reservedFrom, reservedUntil);
+        if (!blockedByRental.isEmpty()) {
+            throw new NotAllowedException("This car has already been booked between these times.");
+        }
+    }
+
+    public void ensureRentalNotPickedUp(Rental rental) {
+        if (rental.getPickedUpAt() != null) {
+            throw new NotAllowedException("This rental has already been picked up.");
+        }
+    }
+
+    public void ensureRentalPickedUp(Rental rental) {
+        if (rental.getPickedUpAt() == null) {
+            throw new NotAllowedException("This rental has not been picked up yet.");
+        }
+    }
+
+    public void ensureRentalNotDelivered(Rental rental) {
+        if (rental.getDeliveredAt() != null) {
+            throw new NotAllowedException("This rental has already been delivered.");
+        }
+    }
+
+    public void ensureRentalBroughtBack(Optional<Rental> broughtBackLateRental) {
+        if (broughtBackLateRental.isPresent()) {
+            throw new NotAllowedException("Sorry, the previous renter has not brought the car yet back, so you cannot pick it up yet. Please wait and have a coffee.");
+        }
+    }
+
+    public void ensureRentalIsRentedByUser(Rental rental, User user) {
+        if(rental.getTenant() != user) {
+            throw new NotAllowedException("This is not your rental.");
+        }
+    }
+
+    public void ensureRentalHasNotStartedYet(Rental rental) {
+        if (rental.getReservedFrom().isBefore(LocalDateTime.now())) {
+            throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
+        }
+    }
+
+    public void ensureRentalNotCancelled(Rental rental) {
+        if (rental.isCancelled()) {
+            throw new NotAllowedException("This rental has already been cancelled.");
+        }
+    }
+
+    public void ensureKilometerCountHigherThanPrevious(Long mileageTotal, Car car) {
+        if (mileageTotal < car.getKilometersCurrent()) {
+            throw new NotAllowedException("The kilometer count you submitted is lower than the count before you rented it.");
+        }
+    }
+
+    public void ensureRentalTimeStarted(Rental rental) {
+        if (!LocalDateTime.now().isAfter(rental.getReservedFrom())) {
+            throw new NotAllowedException("The rental start time hasn't started yet.");
+        }
     }
 }

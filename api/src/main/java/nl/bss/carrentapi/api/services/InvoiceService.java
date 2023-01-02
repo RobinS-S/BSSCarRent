@@ -32,16 +32,24 @@ public class InvoiceService {
     public Invoice payInvoice(User user, long invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new NotFoundException("This invoice was not found."));
 
-        if (invoice.getRenter() != user) {
-            throw new NotAllowedException("This is not your invoice to pay.");
-        }
+        ensureIsUserIsRenterForInvoice(invoice, user);
 
-        if (invoice.getIsPaid()) {
-            throw new NotAllowedException("You can't pay this invoice.");
-        }
+        ensureIsInvoiceNotPaidYet(invoice);
 
         invoice.setIsPaid(true);
         return invoiceRepository.save(invoice);
+    }
+
+    public void ensureIsUserIsRenterForInvoice(Invoice invoice, User user) {
+        if (invoice.getRenter() != user) {
+            throw new NotAllowedException("This is not your invoice to pay.");
+        }
+    }
+
+    public void ensureIsInvoiceNotPaidYet(Invoice invoice) {
+        if (invoice.getIsPaid()) {
+            throw new NotAllowedException("You can't pay this invoice.");
+        }
     }
 
     public List<Invoice> getInvoicesByOwner(User user) {
