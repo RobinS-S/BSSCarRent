@@ -33,13 +33,11 @@ public class UserController {
     private final DtoMapper dtoMapper;
     private final ModelMapper modelMapper;
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final CarRepository carRepository;
     private final AuthService authService;
 
     @GetMapping
     public ResponseEntity<List<UserDto>> index() {
-        List<User> users = userRepository.findAll();
+        List<User> users = userService.listUsers();
 
         return ResponseEntity.ok(users.stream()
                 .map(dtoMapper::convertToDto)
@@ -51,7 +49,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("That user was not found."));
+        User user = userService.findUser(id).orElseThrow(() -> new NotFoundException("That user was not found."));
         return ResponseEntity.ok(dtoMapper.convertToDto(user));
     }
 
@@ -60,7 +58,7 @@ public class UserController {
      */
     @GetMapping("/{id}/cars")
     public ResponseEntity<List<CarDto>> getUserCars(@PathVariable Long id) {
-        List<Car> cars = carRepository.findByOwnerId(id);
+        List<Car> cars = userService.listCarsByOwnerId(id);
         return ResponseEntity.ok(cars.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
@@ -77,7 +75,7 @@ public class UserController {
         }
 
         modelMapper.map(updateDto, user);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(dtoMapper.convertToDto(user));
     }
@@ -96,7 +94,7 @@ public class UserController {
      */
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserRegisterDto userDto) {
-        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+        if (userService.isEmailPresent(userDto)) {
             throw new ConflictException("This email is already used for an account. Please log in.");
         }
 

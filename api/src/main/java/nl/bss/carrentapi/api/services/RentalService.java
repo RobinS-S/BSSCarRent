@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -163,6 +164,19 @@ public class RentalService {
         return invoiceRepository.save(invoice);
     }
 
+    
+    public List<Rental> getRentalsForCar(Long id) {
+        return rentalRepository.findRentalsByCarId(id);
+    }
+
+    public List<Rental> getRentalsByCarOwner(User user) {
+        return rentalRepository.findRentalsByCarOwnerId(user.getId());
+    }
+
+    public Optional<Rental> findOpenRentalForUserId(User user) {
+        return rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+    }
+    
     public void ensureUserHasNoOpenOrActiveRental(User user) {
         Optional<Rental> existingRentalsForUser = rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
         if (existingRentalsForUser.isPresent()) {
