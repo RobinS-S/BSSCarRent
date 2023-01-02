@@ -9,6 +9,8 @@ import nl.bss.carrentapi.api.models.User;
 import nl.bss.carrentapi.api.repository.InvoiceRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class InvoiceService {
@@ -40,5 +42,9 @@ public class InvoiceService {
 
         invoice.setIsPaid(true);
         return invoiceRepository.save(invoice);
+    }
+
+    public List<Invoice> getInvoicesByOwner(User user) {
+        return invoiceRepository.findByOwnerId(user.getId());
     }
 }

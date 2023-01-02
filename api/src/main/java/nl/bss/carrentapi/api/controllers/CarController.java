@@ -39,11 +39,8 @@ import java.util.stream.Collectors;
 public class CarController {
     private final DtoMapper dtoMapper;
     private final ModelMapper modelMapper;
-    private final RentalRepository rentalRepository;
-    private final CarRepository carRepository;
     private final CarService carService;
     private final AuthService authService;
-    private final CarImageRepository carImageRepository;
 
     /**
      * Gets Image IDs for Car
@@ -51,8 +48,7 @@ public class CarController {
     @GetMapping("/{id}/images")
     @ResponseBody
     public ResponseEntity<List<Long>> findImage(@PathVariable Long id) {
-        carService.findCar(id);
-        return ResponseEntity.ok(carImageRepository.findIDsByCarId(id));
+        return ResponseEntity.ok(carService.responseImage(id));
     }
 
     /**
@@ -61,7 +57,7 @@ public class CarController {
     @GetMapping("/{id}/image/{imageId}")
     @ResponseBody
     public ResponseEntity<byte[]> findImage(@PathVariable Long id, @PathVariable Long imageId) {
-        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        CarImage image = carService.findCarImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf(image.getType())).body(ImageUtil.decompressImage(image.getData()));
     }
 
@@ -78,8 +74,8 @@ public class CarController {
             throw new NotAllowedException("This is not your car, so you cannot change its images.");
         }
 
-        CarImage image = carImageRepository.findByIdAndCarId(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
-        carImageRepository.delete(image);
+        CarImage image = carService.findCarImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        carService.deleteImage(image);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -130,7 +126,7 @@ public class CarController {
      */
     @GetMapping
     public ResponseEntity<List<CarDto>> getCars() {
-        List<Car> cars = carRepository.findAll();
+        List<Car> cars = carService.listCars();
         return ResponseEntity.ok(cars.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
@@ -171,7 +167,7 @@ public class CarController {
                 car = carService.createBatteryElectricCar(carDto.getBrand(), carDto.getModel(), carDto.getColor(), carDto.getLicensePlate(), carDto.getKilometersCurrent(), carDto.getPricePerKilometer(), carDto.getPricePerHour(), carDto.getInitialCost(), carDto.getConstructed(), carDto.getApkUntil(), carDto.getLat(), carDto.getLng(), user);
                 break;
         }
-        car = carRepository.save(car);
+        carService.saveCar(car);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoMapper.convertToDto(car));
     }
@@ -205,21 +201,21 @@ public class CarController {
             throw new NotAllowedException("This is not your car, so you cannot change its details.");
         }
 
-        Optional<Rental> rental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(car.getId());
+        Optional<Rental> rental = carService.findActiveRentalForCarId(car);
         if (rental.isPresent()) {
             throw new NotAllowedException("The car is currently rented out. Please delete your car when it is brought back.");
         }
 
         Set<Rental> rentals = car.getRentals();
         rentals.forEach(r -> r.setCar(null));
-        rentalRepository.saveAll(rentals);
+        carService.saveAll(rentals);
 
-        List<Long> imageIds = carImageRepository.findIDsByCarId(car.getId());
+        List<Long> imageIds = carService.getImageIds(car);
         if(imageIds.size() > 0) {
-            carImageRepository.deleteByCarIdAndIdIn(imageIds);
+            carService.deleteImages(imageIds);
         }
 
-        carRepository.delete(car);
+        carService.deleteCar(car);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
