@@ -13,7 +13,9 @@ on:
 
 jobs:
   build:
-
+    defaults:
+      run:
+        working-directory: api
     runs-on: ubuntu-latest
     permissions:
       contents: read
