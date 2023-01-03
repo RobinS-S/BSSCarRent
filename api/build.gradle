@@ -21,6 +21,13 @@ publishing {
 			}
 		}
 	}
+	publications {
+		maven(MavenPublication) {
+			groupId = 'nl.bss.carrentapi'
+			artifactId = 'api'
+			from components.java
+		}
+	}
 }
 
 repositories {
