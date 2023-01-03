@@ -44,5 +44,5 @@ jobs:
         arguments: publish
         build-root-directory: api
       env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        APIGH_ACTOR: ${{ github.actor }}
+        APIGH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
