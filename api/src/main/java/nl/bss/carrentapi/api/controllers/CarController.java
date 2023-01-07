@@ -75,6 +75,7 @@ public class CarController {
         }
 
         CarImage image = carService.findCarImage(imageId, id).orElseThrow(() -> new NotAllowedException("That image was not found for this car!"));
+        carService.removeImageIdFromCar(car, image.getId());
         carService.deleteImage(image);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -97,6 +98,7 @@ public class CarController {
                 throw new NotAllowedException("Invalid content type.");
             } else {
                 CarImage image = carService.createCarImage(uploadedFileType, file.getBytes(), car);
+                carService.addImageIdToCar(car, image.getId());
                 return ResponseEntity.status(HttpStatus.CREATED).body(image.getId());
             }
         } catch (IOException e) {

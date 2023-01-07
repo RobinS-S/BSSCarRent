@@ -70,6 +70,10 @@ public abstract class Car implements CostCalculable {
     @Column
     private Double lng;
 
+    @ElementCollection
+    @Column(name = "image_ids")
+    private Set<Long> imageIds;
+
     protected Car() {
     }
 

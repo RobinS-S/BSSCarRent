@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -61,4 +62,6 @@ public class CarDto {
 
     @NotNull
     private Double lng;
+
+    private List<Long> imageIds;
 }
