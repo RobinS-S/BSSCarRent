@@ -101,6 +101,20 @@ public class CarService {
         carImageRepository.delete(image);
     }
 
+    public void addImageIdToCar(Car car, long imageId) {
+        var imageIds = car.getImageIds();
+        imageIds.add(imageId);
+        car.setImageIds(imageIds);
+        carRepository.save(car);
+    }
+
+    public void removeImageIdFromCar(Car car, long imageId) {
+        var imageIds = car.getImageIds();
+        imageIds.remove(imageId);
+        car.setImageIds(imageIds);
+        carRepository.save(car);
+    }
+
     public List<Long> getImageIds(Car car) {
         return carImageRepository.findIDsByCarId(car.getId());
     }
