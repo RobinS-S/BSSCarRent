@@ -1,7 +1,7 @@
 package nl.bss.carrentapi.api.mappers;
 
 import nl.bss.carrentapi.api.dto.InvoiceDto;
-import nl.bss.carrentapi.api.dto.RentalDto;
+import nl.bss.carrentapi.api.dto.rental.RentalDto;
 import nl.bss.carrentapi.api.dto.car.CarDto;
 import nl.bss.carrentapi.api.dto.rental.RentalPeriodDto;
 import nl.bss.carrentapi.api.dto.user.UserDto;
