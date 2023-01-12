@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -18,21 +17,24 @@ public class RentalDto {
     @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedFrom;
-
     @NotNull
-    @Future
+    @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reservedUntil;
-
+    @NotNull
+    @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime deliveredAt;
+    @NotNull
+    @FutureOrPresent
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 
+    private LocalDateTime pickedUpAt;
     private long mileageTotal;
     private Double drivingStyleScore;
     private long kmPackage;
     private long tenantId;
-    private long carOwnerId;
+    private long ownerId;
     private long carId;
-    private LocalDateTime pickedUpAt;
     private boolean isCancelled;
 }

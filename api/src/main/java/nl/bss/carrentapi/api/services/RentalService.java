@@ -90,7 +90,7 @@ public class RentalService {
     public Rental cancelRental(User user) {
         Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
 
-        ensureRentalHasNotStartedYet(rental);
+        ensureRentalIsCancelable(rental);
 
         ensureRentalNotCancelled(rental);
 
@@ -227,8 +227,8 @@ public class RentalService {
         }
     }
 
-    public void ensureRentalHasNotStartedYet(Rental rental) {
-        if (rental.getReservedFrom().isBefore(LocalDateTime.now())) {
+    public void ensureRentalIsCancelable(Rental rental) {
+        if (rental.getReservedFrom().isBefore(LocalDateTime.now()) && rental.getReservedUntil().isAfter(LocalDateTime.now())) {
             throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
         }
     }
