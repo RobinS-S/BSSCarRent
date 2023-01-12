@@ -2,7 +2,7 @@ package nl.bss.carrentapi.api.controllers;
 
 import lombok.AllArgsConstructor;
 import nl.bss.carrentapi.api.dto.InvoiceDto;
-import nl.bss.carrentapi.api.dto.RentalDto;
+import nl.bss.carrentapi.api.dto.rental.RentalDto;
 import nl.bss.carrentapi.api.dto.rental.RentalCreateDto;
 import nl.bss.carrentapi.api.dto.rental.RentalDeliverDto;
 import nl.bss.carrentapi.api.dto.rental.RentalPeriodDto;
@@ -11,7 +11,6 @@ import nl.bss.carrentapi.api.mappers.DtoMapper;
 import nl.bss.carrentapi.api.models.Invoice;
 import nl.bss.carrentapi.api.models.Rental;
 import nl.bss.carrentapi.api.models.User;
-import nl.bss.carrentapi.api.repository.RentalRepository;
 import nl.bss.carrentapi.api.services.AuthService;
 import nl.bss.carrentapi.api.services.RentalService;
 import org.springframework.http.HttpStatus;
