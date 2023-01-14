@@ -49,7 +49,7 @@ public class RentalController {
      */
     @GetMapping("/car/{id}/periods")
     public ResponseEntity<List<RentalPeriodDto>> getRentalPeriodsForCar(@PathVariable Long id) {
-        List<Rental> rentals = rentalService.getRentalsForCar(id);
+        List<Rental> rentals = rentalService.getNonDisabledRentalsForCar(id);
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToRentalPeriodDto)
                 .collect(Collectors.toList()));

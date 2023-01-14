@@ -164,9 +164,12 @@ public class RentalService {
         return invoiceRepository.save(invoice);
     }
 
-    
     public List<Rental> getRentalsForCar(Long id) {
         return rentalRepository.findRentalsByCarId(id);
+    }
+
+    public List<Rental> getNonDisabledRentalsForCar(Long id) {
+        return rentalRepository.findRentalsByCarIdAndIsCancelledFalse(id);
     }
 
     public List<Rental> getRentalsByCarOwner(User user) {
