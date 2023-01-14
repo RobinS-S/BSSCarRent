@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
-    List<Rental> findRentalsByCarId(long userId);
+    List<Rental> findRentalsByCarId(long rentalId);
 
-    List<Rental> findRentalsByCarOwnerId(long userId);
+    List<Rental> findRentalsByCarIdAndIsCancelledFalse(long rentalId);
 
-    List<Rental> findRentalsByTenantId(long userId);
+    List<Rental> findRentalsByCarOwnerId(long rentalId);
+
+    List<Rental> findRentalsByTenantId(long rentalId);
 
     /**
      * Finds rentals that haven't been brought back yet for given carId
@@ -35,10 +37,10 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     /**
      * Finds open rental by the User id that rents it
      */
-    Optional<Rental> findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(long userId);
+    Optional<Rental> findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(long rentalId);
 
     /**
-     * Finds open rental that has neither been picked up or delivered yet where userId is the renter
+     * Finds open rental that has neither been picked up or delivered yet where rentalId is the renter
      */
-    Optional<Rental> findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(long userId);
+    Optional<Rental> findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(long rentalId);
 }
