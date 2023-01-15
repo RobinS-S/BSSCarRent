@@ -62,7 +62,7 @@ public class RentalController {
     public ResponseEntity<List<RentalDto>> getRentalsForCarTenant(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Rental> rentals = rentalService.getRentalsByCarOwner(user);
+        List<Rental> rentals = rentalService.getRentalsByTenant(user);
         return ResponseEntity.ok(rentals.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));

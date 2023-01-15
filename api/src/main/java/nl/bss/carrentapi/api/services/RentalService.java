@@ -178,6 +178,11 @@ public class RentalService {
         return rentalRepository.findRentalsByCarOwnerId(user.getId());
     }
 
+    public List<Rental> getRentalsByTenant(User user) {
+        return rentalRepository.findRentalsByTenantId(user.getId());
+    }
+
+
     public Optional<Rental> findOpenRentalForUserId(User user) {
         return rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
     }
