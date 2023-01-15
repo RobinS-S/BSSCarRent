@@ -9,11 +9,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
+import org.springframework.test.context.ContextConfiguration;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 class DtoMapperTest {
+    private Clock clock = Clock.system(ZoneId.of("Europe/Amsterdam"));
+
     User user1;
     User user2;
     BatteryElectricCar batteryElectricCar;
@@ -23,11 +28,11 @@ class DtoMapperTest {
 
     @BeforeEach
     void setUp() {
-        user1 = new User("test@test.nl", "password", "Julian", "", "Bos", "+31", "6 25354555", LocalDate.now());
-        user2 = new User("owner@test.nl", "password", "Julian", "", "Bos", "+31", "6 25354555", LocalDate.now());
-        batteryElectricCar = new BatteryElectricCar("Opel", "Corsa", "Spacegray", "AB-123-C", 10000, 1.0, 15.0, 10.0, LocalDate.now(), LocalDate.now(), 1.0, 1.0,user1);
-        fuelCellCar = new FuelCellCar("Opel", "Corsa", "Red", "AB-123-C", 10000, 1.0, 15.0, 10.0, LocalDate.now(), LocalDate.now(), 1.0, 1.0, user1);
-        rental = new Rental(LocalDateTime.now(), LocalDateTime.now(), 10000, user1, user2, batteryElectricCar);
+        user1 = new User("test@test.nl", "password", "Julian", "", "Bos", "+31", "6 25354555", LocalDate.now(clock));
+        user2 = new User("owner@test.nl", "password", "Julian", "", "Bos", "+31", "6 25354555", LocalDate.now(clock));
+        batteryElectricCar = new BatteryElectricCar("Opel", "Corsa", "Spacegray", "AB-123-C", 10000, 1.0, 15.0, 10.0, LocalDate.now(clock), LocalDate.now(clock), 1.0, 1.0,user1);
+        fuelCellCar = new FuelCellCar("Opel", "Corsa", "Red", "AB-123-C", 10000, 1.0, 15.0, 10.0, LocalDate.now(clock), LocalDate.now(clock), 1.0, 1.0, user1);
+        rental = new Rental(LocalDateTime.now(clock), LocalDateTime.now(clock), 10000, user1, user2, batteryElectricCar);
         invoice = new Invoice(10, 10.0, 15.0, 100, 10.0, 3.5, 65.50, false, user1, user2, rental);
     }
 

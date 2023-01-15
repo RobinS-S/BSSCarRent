@@ -13,6 +13,7 @@ import nl.bss.carrentapi.api.repository.InvoiceRepository;
 import nl.bss.carrentapi.api.repository.RentalRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -26,6 +27,7 @@ public class RentalService {
     private final InvoiceService invoiceService;
     private final CarService carService;
     private final CarRepository carRepository;
+    private final Clock clock;
 
     /**
      * Creates new rental with given information.
@@ -78,7 +80,7 @@ public class RentalService {
         Optional<Rental> broughtBackLateRental = rentalRepository.findRentalByCarIdAndPickedUpAtNotNullAndDeliveredAtIsNullAndIsCancelledFalse(rental.getCar().getId());
         ensureRentalBroughtBack(broughtBackLateRental);
 
-        rental.setPickedUpAt(LocalDateTime.now());
+        rental.setPickedUpAt(LocalDateTime.now(clock));
         return rentalRepository.save(rental);
     }
 
@@ -133,7 +135,7 @@ public class RentalService {
         }
 
         // Updates Rental info
-        rental.setDeliveredAt(LocalDateTime.now());
+        rental.setDeliveredAt(LocalDateTime.now(clock));
         rental.setMileageTotal(mileageTotal);
         rental.setDrivingStyleScore(drivingScore);
         rental = rentalRepository.save(rental);
@@ -188,7 +190,7 @@ public class RentalService {
     }
 
     public void ensureRentalDateTimesNotInPast(LocalDateTime reservedFrom, LocalDateTime reservedUntil) {
-        if (reservedFrom.isBefore(LocalDateTime.now()) || reservedUntil.isBefore(LocalDateTime.now())) {
+        if (reservedFrom.isBefore(LocalDateTime.now(clock)) || reservedUntil.isBefore(LocalDateTime.now(clock))) {
             throw new NotAllowedException("You can't create a Rental in the past!");
         }
     }
@@ -231,7 +233,7 @@ public class RentalService {
     }
 
     public void ensureRentalIsCancelable(Rental rental) {
-        if (rental.getReservedFrom().isBefore(LocalDateTime.now()) && rental.getReservedUntil().isAfter(LocalDateTime.now())) {
+        if (rental.getReservedFrom().isBefore(LocalDateTime.now(clock)) && rental.getReservedUntil().isAfter(LocalDateTime.now(clock))) {
             throw new NotAllowedException("This rental has already started, so you must pick it up and deliver it back.");
         }
     }
@@ -249,7 +251,7 @@ public class RentalService {
     }
 
     public void ensureRentalTimeStarted(Rental rental) {
-        if (!LocalDateTime.now().isAfter(rental.getReservedFrom())) {
+        if (!LocalDateTime.now(clock).isAfter(rental.getReservedFrom())) {
             throw new NotAllowedException("The rental start time hasn't started yet.");
         }
     }

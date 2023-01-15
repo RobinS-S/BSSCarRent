@@ -10,8 +10,13 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Clock;
+import java.time.ZoneId;
 
 @Configuration
 public class BeansConfig {
@@ -35,4 +40,11 @@ public class BeansConfig {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
         return objectMapper;
     }
+
+    @Bean
+    public Clock clock(@Value("${spring.timezone}") String timezone) {
+        ZoneId zoneId = ZoneId.of(timezone);
+        return Clock.system(zoneId);
+    }
 }
+

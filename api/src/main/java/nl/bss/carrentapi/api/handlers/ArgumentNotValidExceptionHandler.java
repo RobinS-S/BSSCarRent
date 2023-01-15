@@ -11,12 +11,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.time.Clock;
+
 @ControllerAdvice
 public class ArgumentNotValidExceptionHandler extends ResponseEntityExceptionHandler {
+    private Clock clock;
+
     @Override
     @ResponseBody
     protected ResponseEntity handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        ErrorBuilder builder = new ErrorBuilder(HttpStatus.BAD_REQUEST);
+        ErrorBuilder builder = new ErrorBuilder(HttpStatus.BAD_REQUEST, clock);
 
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();

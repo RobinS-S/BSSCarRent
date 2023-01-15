@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,14 +14,15 @@ public class ErrorBuilder {
     private final HttpStatus httpStatus;
     private final HttpHeaders httpHeaders;
 
-    public ErrorBuilder(HttpStatus status) {
+    public ErrorBuilder(HttpStatus status, Clock clock) {
         httpStatus = status;
         httpHeaders = new HttpHeaders();
+        result.put("timestamp", LocalDateTime.now(clock));
     }
 
-    public ErrorBuilder(String error, HttpStatus status) {
-        this(status);
-        result.put("timestamp", LocalDateTime.now());
+    public ErrorBuilder(String error, HttpStatus status, Clock clock) {
+        this(status, clock);
+        result.put("timestamp", LocalDateTime.now(clock));
         result.put("error", error);
     }
 
