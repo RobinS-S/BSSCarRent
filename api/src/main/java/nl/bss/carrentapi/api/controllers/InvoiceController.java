@@ -45,7 +45,7 @@ public class InvoiceController {
     public ResponseEntity<List<InvoiceDto>> findByRenterId(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         User user = authService.getCurrentUserByAuthHeader(authHeader);
 
-        List<Invoice> invoices = invoiceService.getInvoicesByOwner(user);
+        List<Invoice> invoices = invoiceService.getInvoicesByRenter(user);
         return ResponseEntity.ok(invoices.stream()
                 .map(dtoMapper::convertToDto)
                 .collect(Collectors.toList()));
