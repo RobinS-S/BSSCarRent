@@ -27,12 +27,15 @@ public class CarUpdateDto {
     @Min(value = 0)
     private Double pricePerKilometer;
 
+    @Min(value = 0)
+    private Double pricePerHour;
+
     @NotEmpty
     private String licensePlate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate apkUntil;
 
-    @NotNull
+    @Min(value = 0)
     private Double initialCost;
 }
