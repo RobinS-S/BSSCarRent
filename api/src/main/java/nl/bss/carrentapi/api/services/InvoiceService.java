@@ -55,4 +55,8 @@ public class InvoiceService {
     public List<Invoice> getInvoicesByOwner(User user) {
         return invoiceRepository.findByOwnerId(user.getId());
     }
+
+    public List<Invoice> getInvoicesByRenter(User user) {
+        return invoiceRepository.findByRenterId(user.getId());
+    }
 }
