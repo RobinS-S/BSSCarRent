@@ -8,8 +8,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Clock;
+
 @RestControllerAdvice
 public class NotAllowedExceptionHandler {
+    private final Clock clock;
+
+    public NotAllowedExceptionHandler(Clock clock) {
+        this.clock = clock;
+    }
+
     @ExceptionHandler(NotAllowedException.class)
     @ResponseBody
     public ResponseEntity NotAllowedExceptionHandler(NotAllowedException ex) {
@@ -18,7 +26,7 @@ public class NotAllowedExceptionHandler {
             reason = "You are not allowed to do that.";
         }
 
-        ErrorBuilder error = new ErrorBuilder(reason, HttpStatus.FORBIDDEN);
+        ErrorBuilder error = new ErrorBuilder(reason, HttpStatus.FORBIDDEN, clock);
         return error.getResultResponseEntity();
     }
 }
