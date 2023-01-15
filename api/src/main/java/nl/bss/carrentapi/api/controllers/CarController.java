@@ -187,6 +187,7 @@ public class CarController {
         }
 
         modelMapper.map(updateDto, car);
+        carService.saveCar(car);
 
         return ResponseEntity.ok(dtoMapper.convertToDto(car));
     }
