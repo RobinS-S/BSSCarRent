@@ -171,7 +171,7 @@ public class RentalService {
     }
 
     public List<Rental> getNonDisabledRentalsForCar(Long id) {
-        return rentalRepository.findRentalsByCarIdAndIsCancelledFalse(id);
+        return rentalRepository.findRentalsByCarIdAndIsCancelledFalseFromThisTime(id, LocalDateTime.now(clock));
     }
 
     public List<Rental> getRentalsByCarOwner(User user) {

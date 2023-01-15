@@ -12,7 +12,8 @@ import java.util.Optional;
 public interface RentalRepository extends JpaRepository<Rental, Long> {
     List<Rental> findRentalsByCarId(long rentalId);
 
-    List<Rental> findRentalsByCarIdAndIsCancelledFalse(long rentalId);
+    @Query(value = "SELECT * FROM rentals WHERE id = :rentalId AND (reserved_until >= :start) AND NOT is_cancelled AND delivered_at IS NULL", nativeQuery = true)
+    List<Rental> findRentalsByCarIdAndIsCancelledFalseFromThisTime(@Param("rentalId") long rentalId, @Param("start") LocalDateTime start);
 
     List<Rental> findRentalsByCarOwnerId(long rentalId);
 
