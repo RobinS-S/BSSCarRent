@@ -38,10 +38,10 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     /**
      * Finds open rental by the User id that rents it
      */
-    Optional<Rental> findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(long rentalId);
+    Optional<Rental> findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(long tenantId);
 
     /**
      * Finds open rental that has neither been picked up or delivered yet where rentalId is the renter
      */
-    Optional<Rental> findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(long rentalId);
+    Optional<Rental> findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(long tenantId);
 }

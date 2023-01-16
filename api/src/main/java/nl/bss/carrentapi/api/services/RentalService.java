@@ -90,7 +90,7 @@ public class RentalService {
      * @param user
      */
     public Rental cancelRental(User user) {
-        Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental as tenant."));
+        Rental rental = rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId()).orElseThrow(() -> new NotFoundException("You don't have an active rental that you can cancel as tenant."));
 
         ensureRentalIsCancelable(rental);
 
@@ -184,7 +184,7 @@ public class RentalService {
 
 
     public Optional<Rental> findOpenRentalForUserId(User user) {
-        return rentalRepository.findRentalByTenantIdAndPickedUpAtIsNullAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
+        return rentalRepository.findRentalByTenantIdAndDeliveredAtIsNullAndIsCancelledFalse(user.getId());
     }
     
     public void ensureUserHasNoOpenOrActiveRental(User user) {
