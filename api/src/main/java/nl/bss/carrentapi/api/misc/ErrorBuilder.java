@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,12 +18,12 @@ public class ErrorBuilder {
     public ErrorBuilder(HttpStatus status, Clock clock) {
         httpStatus = status;
         httpHeaders = new HttpHeaders();
-        result.put("timestamp", LocalDateTime.now(clock));
+        result.put("timestamp", LocalDateTime.now(clock).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
     public ErrorBuilder(String error, HttpStatus status, Clock clock) {
         this(status, clock);
-        result.put("timestamp", LocalDateTime.now(clock));
+        result.put("timestamp", LocalDateTime.now(clock).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         result.put("error", error);
     }
 
